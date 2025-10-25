@@ -15,6 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
+      - name: Cache JDK downloads
+        uses: actions/cache@v4
+        with:
+          path: /tmp/jdk-cache
+          key: jdk26-valhalla-${{ github.run_id }}
+          restore-keys: |
+            jdk26-valhalla-
+
       - name: Fetch latest JDK 26 EA
         id: fetch
         run: |
@@ -67,16 +75,36 @@ jobs:
             local url=$1
             local expected=$2
             local label=$3
-            local tmp
-            tmp=$(mktemp)
-            curl -fsSL "$url" -o "$tmp"
+            local cache_dir="/tmp/jdk-cache"
+            local filename=$(basename "$url")
+            local cached_file="${cache_dir}/${filename}"
+
+            mkdir -p "$cache_dir"
+
+            # Check if cached file exists and has correct checksum
+            if [[ -f "$cached_file" ]]; then
+              local cached_sha
+              cached_sha=$(shasum -a 256 "$cached_file" | awk '{print $1}')
+              if [[ "$cached_sha" == "$expected" ]]; then
+                echo "✅ Using cached ${label} (checksum verified)"
+                return 0
+              else
+                echo "⚠️  Cached ${label} checksum mismatch, re-downloading"
+                rm -f "$cached_file"
+              fi
+            fi
+
+            # Download to cache
+            echo "⬇️  Downloading ${label}..."
+            curl -fsSL "$url" -o "$cached_file"
             local actual
-            actual=$(shasum -a 256 "$tmp" | awk '{print $1}')
-            rm -f "$tmp"
+            actual=$(shasum -a 256 "$cached_file" | awk '{print $1}')
             if [[ "$actual" != "$expected" ]]; then
-              echo "Checksum mismatch for ${label}"
+              echo "❌ Checksum mismatch for ${label}"
+              rm -f "$cached_file"
               exit 1
             fi
+            echo "✅ Downloaded and verified ${label}"
           }
 
           SHA_MAC_ARM=$(fetch_sha "$URL_MAC_ARM" "macOS ARM")

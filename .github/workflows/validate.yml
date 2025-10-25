@@ -7,6 +7,7 @@ on:
 
 jobs:
   validate-syntax:
+    timeout-minutes: 15
     runs-on: macos-14
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -29,7 +30,9 @@ jobs:
           ruby -c Formula/jdk26valhalla.rb
 
   test-install-macos:
+    timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-13, macos-14]
     runs-on: ${{ matrix.os }}
@@ -38,6 +41,14 @@ jobs:
 
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Homebrew/downloads
+          key: ${{ runner.os }}-${{ runner.arch }}-homebrew-jdk26valhalla-26-jep401ea2+1-1
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-homebrew-jdk26valhalla-
 
       - name: Test cask installation
         run: |
@@ -59,6 +70,7 @@ jobs:
           brew uninstall --cask artagon/jdk26valhalla/jdk26valhalla || true
 
   test-install-linux:
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -73,6 +85,14 @@ jobs:
 
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Homebrew/downloads
+          key: ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdk26valhalla-26-jep401ea2+1-1
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdk26valhalla-
 
       - name: Display system info
         run: |
