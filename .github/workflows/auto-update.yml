@@ -1,0 +1,184 @@
+name: Auto Update JDK 26 EA
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Fetch latest JDK 26 EA version
+        id: fetch_version
+        run: |
+          set -euo pipefail
+          # Fetch the JDK 26 EA page and extract the latest build number
+          page=$(curl -fsSL "https://jdk.java.net/26/")
+
+          # Extract build number from the page
+          build=$(echo "$page" | grep -oP 'Build \K\d+' | head -1)
+
+          if [[ -z "$build" || ! "$build" =~ ^[0-9]+$ ]]; then
+            echo "Failed to fetch build number"
+            exit 1
+          fi
+
+          echo "Latest build: $build"
+          echo "build=$build" >> $GITHUB_OUTPUT
+
+          # Get current version from cask
+          current_version=$(grep -oP 'version "\K[^"]+' Casks/jdk26ea.rb)
+          current_build=$(echo "$current_version" | grep -oP '\+\K\d+')
+
+          if [[ -z "$current_build" || ! "$current_build" =~ ^[0-9]+$ ]]; then
+            echo "Failed to determine current build from Casks/jdk26ea.rb"
+            exit 1
+          fi
+
+          echo "Current build: $current_build"
+          echo "current_build=$current_build" >> $GITHUB_OUTPUT
+
+          if [ "$build" != "$current_build" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "New version available!"
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "Already up to date"
+          fi
+
+      - name: Download and compute checksums
+        if: steps.fetch_version.outputs.needs_update == 'true'
+        id: checksums
+        run: |
+          set -euo pipefail
+          build=${{ steps.fetch_version.outputs.build }}
+
+          # Download URLs
+          declare -A urls=(
+            [mac_arm]="https://download.java.net/java/early_access/jdk26/${build}/GPL/openjdk-26-ea+${build}_macos-aarch64_bin.tar.gz"
+            [mac_x64]="https://download.java.net/java/early_access/jdk26/${build}/GPL/openjdk-26-ea+${build}_macos-x64_bin.tar.gz"
+            [linux_arm]="https://download.java.net/java/early_access/jdk26/${build}/GPL/openjdk-26-ea+${build}_linux-aarch64_bin.tar.gz"
+            [linux_x64]="https://download.java.net/java/early_access/jdk26/${build}/GPL/openjdk-26-ea+${build}_linux-x64_bin.tar.gz"
+          )
+
+          for key in mac_arm mac_x64 linux_arm linux_x64; do
+            url=${urls[$key]}
+            sha=$(curl -fsSL "${url}.sha256" | awk '{print $1}')
+            if [[ -z "$sha" || ! "$sha" =~ ^[0-9a-f]{64}$ ]]; then
+              echo "Invalid checksum for ${key}: $sha"
+              exit 1
+            fi
+            tmp=$(mktemp)
+            curl -fsSL "$url" -o "$tmp"
+            actual=$(shasum -a 256 "$tmp" | awk '{print $1}')
+            rm -f "$tmp"
+            if [[ "$actual" != "$sha" ]]; then
+              echo "Checksum mismatch for ${key}"
+              exit 1
+            fi
+            printf 'sha_%s=%s\n' "$key" "$sha" >> "$GITHUB_OUTPUT"
+          done
+
+          echo "Checksums validated successfully"
+
+      - name: Update cask
+        if: steps.fetch_version.outputs.needs_update == 'true'
+        run: |
+          build=${{ steps.fetch_version.outputs.build }}
+          current_build=${{ steps.fetch_version.outputs.current_build }}
+
+          # Update Cask
+          new_cask_version="26-ea+${build},${build}"
+          sed -i "s|version \".*\"|version \"${new_cask_version}\"|g" Casks/jdk26ea.rb
+
+          # Update checksums in Cask
+          awk -v arm="${{ steps.checksums.outputs.sha_mac_arm }}" \
+              -v intel="${{ steps.checksums.outputs.sha_mac_x64 }}" \
+              '/sha256 arm:/ {
+                 print "  sha256 arm:   \"" arm "\","
+                 print "         intel: \"" intel "\""
+                 next
+               }
+               {print}' Casks/jdk26ea.rb > Casks/jdk26ea.rb.tmp && mv Casks/jdk26ea.rb.tmp Casks/jdk26ea.rb
+
+      - name: Update formula
+        if: steps.fetch_version.outputs.needs_update == 'true'
+        run: |
+          build=${{ steps.fetch_version.outputs.build }}
+          current_build=${{ steps.fetch_version.outputs.current_build }}
+
+          # Update Formula
+          sed -i "s/26-ea+${current_build}/26-ea+${build}/g" Formula/jdk26ea.rb
+          sed -i "s|jdk26/${current_build}/GPL|jdk26/${build}/GPL|g" Formula/jdk26ea.rb
+
+          # Update checksums in Formula (supports both macOS and Linux ARM64/x64)
+          awk -v mac_arm="${{ steps.checksums.outputs.sha_mac_arm }}" \
+              -v mac_x64="${{ steps.checksums.outputs.sha_mac_x64 }}" \
+              -v linux_arm="${{ steps.checksums.outputs.sha_linux_arm }}" \
+              -v linux_x64="${{ steps.checksums.outputs.sha_linux_x64 }}" \
+              'BEGIN { in_macos=0; in_linux=0; in_arm_block=0 }
+               /on_macos do/ { in_macos=1; in_linux=0 }
+               /on_linux do/ { in_linux=1; in_macos=0 }
+               /if Hardware::CPU\.arm\?/ { in_arm_block=1 }
+               /else$/ { in_arm_block=0 }
+               /^  end$/ {
+                 if (in_macos || in_linux) {
+                   in_macos=0
+                   in_linux=0
+                 }
+               }
+               /sha256/ {
+                 if (in_macos && in_arm_block) { sub(/sha256 ".*"/, "sha256 \"" mac_arm "\"") }
+                 else if (in_macos && !in_arm_block) { sub(/sha256 ".*"/, "sha256 \"" mac_x64 "\"") }
+                 else if (in_linux && in_arm_block) { sub(/sha256 ".*"/, "sha256 \"" linux_arm "\"") }
+                 else if (in_linux && !in_arm_block) { sub(/sha256 ".*"/, "sha256 \"" linux_x64 "\"") }
+               }
+               {print}' Formula/jdk26ea.rb > Formula/jdk26ea.rb.tmp && mv Formula/jdk26ea.rb.tmp Formula/jdk26ea.rb
+
+      - name: Validate syntax
+        if: steps.fetch_version.outputs.needs_update == 'true'
+        run: |
+          ruby -c Casks/jdk26ea.rb
+          ruby -c Formula/jdk26ea.rb
+
+      - name: Create Pull Request
+        if: steps.fetch_version.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update to JDK 26 EA Build ${{ steps.fetch_version.outputs.build }}"
+          title: "chore: update to JDK 26 EA Build ${{ steps.fetch_version.outputs.build }}"
+          body: |
+            ## Automated Update
+
+            This PR updates the JDK 26 EA cask and formula to Build ${{ steps.fetch_version.outputs.build }}.
+
+            ### Changes
+            - Updated version from `26-ea+${{ steps.fetch_version.outputs.current_build }}` to `26-ea+${{ steps.fetch_version.outputs.build }}`
+            - Updated download URLs
+            - Updated SHA256 checksums for all platforms
+
+            ### Checksums
+            - macOS ARM64: `${{ steps.checksums.outputs.sha_mac_arm }}`
+            - macOS x64: `${{ steps.checksums.outputs.sha_mac_x64 }}`
+            - Linux ARM64: `${{ steps.checksums.outputs.sha_linux_arm }}`
+            - Linux x64: `${{ steps.checksums.outputs.sha_linux_x64 }}`
+
+            ### Source
+            https://jdk.java.net/26/
+
+            ---
+            This PR was automatically created by the auto-update workflow.
+          branch: update/jdk26-ea-build-${{ steps.fetch_version.outputs.build }}
+          delete-branch: true
+          labels: |
+            automated
+            update

@@ -1,0 +1,21 @@
+name: Audit
+
+on:
+  schedule:
+    - cron: '0 12 * * 1'  # Weekly on Mondays at noon UTC
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Set up Homebrew
+        if: runner.os == 'Linux'
+        uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+
+      - name: Audit cask
+        run: |
+          brew style Casks/jdk26ea.rb || true
+          ruby -c Casks/jdk26ea.rb

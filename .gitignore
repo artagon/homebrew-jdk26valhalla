@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Homebrew
+*.bottle.json
+*.bottle.tar.gz
+
+# Temporary files
+*.bak
+*.tmp
+page.html
+
+# Scripts temp files
+scripts/*.log
+
+# Test files
+test-*/

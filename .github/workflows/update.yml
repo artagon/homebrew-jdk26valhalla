@@ -1,0 +1,199 @@
+name: Update JDK 26 EA
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Fetch latest JDK 26 EA
+        id: fetch
+        run: |
+          set -euo pipefail
+          page_file=$(mktemp)
+          curl -fsSL https://jdk.java.net/26/ -o "$page_file"
+
+          BUILD=$(grep -oE 'Build [0-9]+' "$page_file" | awk '{print $2}' | head -1)
+          if [[ -z "$BUILD" || ! "$BUILD" =~ ^[0-9]+$ ]]; then
+            echo "Failed to extract a valid build number"
+            exit 1
+          fi
+
+          VERSION="26-ea+${BUILD}"
+
+          extract_url() {
+            local pattern=$1
+            local label=$2
+            local url
+            url=$(grep -oP "href=\"\\Khttps://[^\"]*${pattern}" "$page_file" | head -1)
+            if [[ -z "$url" ]]; then
+              echo "Failed to locate download URL for ${label}"
+              exit 1
+            fi
+            if [[ ! "$url" =~ ^https://download\.java\.net/java/early_access/jdk26/${BUILD}/GPL/ ]]; then
+              echo "Unexpected download host for ${label}: $url"
+              exit 1
+            fi
+            echo "$url"
+          }
+
+          URL_MAC_ARM=$(extract_url "openjdk-26-ea\\+${BUILD}_macos-aarch64_bin\\.tar\\.gz" "macOS ARM")
+          URL_MAC_INTEL=$(extract_url "openjdk-26-ea\\+${BUILD}_macos-x64_bin\\.tar\\.gz" "macOS Intel")
+          URL_LINUX_ARM=$(extract_url "openjdk-26-ea\\+${BUILD}_linux-aarch64_bin\\.tar\\.gz" "Linux ARM")
+          URL_LINUX_X64=$(extract_url "openjdk-26-ea\\+${BUILD}_linux-x64_bin\\.tar\\.gz" "Linux x64")
+
+          fetch_sha() {
+            local url=$1
+            local label=$2
+            local sha
+            sha=$(curl -fsSL "${url}.sha256" | awk '{print $1}')
+            if [[ -z "$sha" || ! "$sha" =~ ^[0-9a-f]{64}$ ]]; then
+              echo "Invalid checksum for ${label}: $sha"
+              exit 1
+            fi
+            echo "$sha"
+          }
+
+          verify_tarball() {
+            local url=$1
+            local expected=$2
+            local label=$3
+            local tmp
+            tmp=$(mktemp)
+            curl -fsSL "$url" -o "$tmp"
+            local actual
+            actual=$(shasum -a 256 "$tmp" | awk '{print $1}')
+            rm -f "$tmp"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "Checksum mismatch for ${label}"
+              exit 1
+            fi
+          }
+
+          SHA_MAC_ARM=$(fetch_sha "$URL_MAC_ARM" "macOS ARM")
+          SHA_MAC_INTEL=$(fetch_sha "$URL_MAC_INTEL" "macOS Intel")
+          SHA_LINUX_ARM=$(fetch_sha "$URL_LINUX_ARM" "Linux ARM")
+          SHA_LINUX_X64=$(fetch_sha "$URL_LINUX_X64" "Linux x64")
+
+          verify_tarball "$URL_MAC_ARM" "$SHA_MAC_ARM" "macOS ARM"
+          verify_tarball "$URL_MAC_INTEL" "$SHA_MAC_INTEL" "macOS Intel"
+          verify_tarball "$URL_LINUX_ARM" "$SHA_LINUX_ARM" "Linux ARM"
+          verify_tarball "$URL_LINUX_X64" "$SHA_LINUX_X64" "Linux x64"
+
+          rm -f "$page_file"
+
+          cat <<EOF >>"$GITHUB_OUTPUT"
+version=$VERSION
+build=$BUILD
+cask_version=${VERSION},${BUILD}
+url_mac_arm=$URL_MAC_ARM
+url_mac_intel=$URL_MAC_INTEL
+url_linux_arm=$URL_LINUX_ARM
+url_linux_x64=$URL_LINUX_X64
+sha_mac_arm=$SHA_MAC_ARM
+sha_mac_intel=$SHA_MAC_INTEL
+sha_linux_arm=$SHA_LINUX_ARM
+sha_linux_x64=$SHA_LINUX_X64
+EOF
+
+      - name: Update cask and formula files
+        env:
+          VERSION: ${{ steps.fetch.outputs.version }}
+          BUILD: ${{ steps.fetch.outputs.build }}
+          CASK_VERSION: ${{ steps.fetch.outputs.cask_version }}
+          URL_MAC_ARM: ${{ steps.fetch.outputs.url_mac_arm }}
+          URL_MAC_INTEL: ${{ steps.fetch.outputs.url_mac_intel }}
+          URL_LINUX_ARM: ${{ steps.fetch.outputs.url_linux_arm }}
+          URL_LINUX_X64: ${{ steps.fetch.outputs.url_linux_x64 }}
+          SHA_MAC_ARM: ${{ steps.fetch.outputs.sha_mac_arm }}
+          SHA_MAC_INTEL: ${{ steps.fetch.outputs.sha_mac_intel }}
+          SHA_LINUX_ARM: ${{ steps.fetch.outputs.sha_linux_arm }}
+          SHA_LINUX_X64: ${{ steps.fetch.outputs.sha_linux_x64 }}
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          cask_path = Path("Casks/jdk26ea.rb")
+          cask_text = cask_path.read_text()
+          cask_text, replaced = re.subn(
+              r'version "[^"]+"',
+              f'version "{os.environ["CASK_VERSION"]}"',
+              cask_text,
+              count=1,
+          )
+          if replaced != 1:
+              raise SystemExit("Failed to update cask version")
+          cask_text, replaced = re.subn(
+              r'sha256 arm:\s+"[0-9a-f]{64}",\s*\n\s*intel:\s+"[0-9a-f]{64}"',
+              f'sha256 arm:   "{os.environ["SHA_MAC_ARM"]}",\n         intel: "{os.environ["SHA_MAC_INTEL"]}"',
+              cask_text,
+              count=1,
+          )
+          if replaced != 1:
+              raise SystemExit("Failed to update cask checksums")
+          cask_path.write_text(cask_text)
+
+          formula_path = Path("Formula/jdk26ea.rb")
+          formula_text = formula_path.read_text()
+          formula_text, replaced = re.subn(
+              r'version "[^"]+"',
+              f'version "{os.environ["VERSION"]}"',
+              formula_text,
+              count=1,
+          )
+          if replaced != 1:
+              raise SystemExit("Failed to update formula version")
+
+          replacements = [
+              (r'https://download\.java\.net/java/early_access/jdk26/\d+/GPL/openjdk-26-ea\+\d+_macos-aarch64_bin\.tar\.gz', os.environ["URL_MAC_ARM"]),
+              (r'https://download\.java\.net/java/early_access/jdk26/\d+/GPL/openjdk-26-ea\+\d+_macos-x64_bin\.tar\.gz', os.environ["URL_MAC_INTEL"]),
+              (r'https://download\.java\.net/java/early_access/jdk26/\d+/GPL/openjdk-26-ea\+\d+_linux-aarch64_bin\.tar\.gz', os.environ["URL_LINUX_ARM"]),
+              (r'https://download\.java\.net/java/early_access/jdk26/\d+/GPL/openjdk-26-ea\+\d+_linux-x64_bin\.tar\.gz', os.environ["URL_LINUX_X64"]),
+          ]
+
+          for pattern, replacement in replacements:
+              formula_text, replaced = re.subn(pattern, replacement, formula_text, count=1)
+              if replaced != 1:
+                  raise SystemExit(f"Failed to update formula URL for pattern {pattern}")
+
+          sha_values = [
+              os.environ["SHA_MAC_ARM"],
+              os.environ["SHA_MAC_INTEL"],
+              os.environ["SHA_LINUX_ARM"],
+              os.environ["SHA_LINUX_X64"],
+          ]
+
+          for sha in sha_values:
+              formula_text, replaced = re.subn(r'sha256 "[0-9a-f]{64}"', f'sha256 "{sha}"', formula_text, count=1)
+              if replaced != 1:
+                  raise SystemExit("Failed to update formula checksum")
+
+          formula_path.write_text(formula_text)
+          PY
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c
+        with:
+          commit-message: "Update JDK 26 EA to ${{ steps.fetch.outputs.version }}"
+          title: "Update JDK 26 EA to ${{ steps.fetch.outputs.version }}"
+          body: |
+            Auto-update JDK 26 EA to version ${{ steps.fetch.outputs.version }}
+
+            - macOS ARM64: ${{ steps.fetch.outputs.url_mac_arm }}
+            - macOS x64: ${{ steps.fetch.outputs.url_mac_intel }}
+            - Linux ARM64: ${{ steps.fetch.outputs.url_linux_arm }}
+            - Linux x64: ${{ steps.fetch.outputs.url_linux_x64 }}
+          branch: update-jdk26-${{ steps.fetch.outputs.version }}
+          delete-branch: true

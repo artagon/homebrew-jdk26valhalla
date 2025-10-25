@@ -1,0 +1,67 @@
+name: Build Update Request
+description: Request an update to a newer JDK 26 Project Valhalla build
+title: "[Update]: JDK 26 Valhalla Build "
+labels: ["enhancement", "update"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request an update to the latest JDK 26 Project Valhalla build.
+
+  - type: input
+    id: new-build
+    attributes:
+      label: New Build Number
+      description: What is the new build number available?
+      placeholder: "e.g., 26-jep401ea2+2-1"
+    validations:
+      required: true
+
+  - type: input
+    id: release-date
+    attributes:
+      label: Release Date
+      description: When was this build released?
+      placeholder: "e.g., 2025-10-24"
+    validations:
+      required: true
+
+  - type: input
+    id: source-url
+    attributes:
+      label: Source URL
+      description: URL to the official JDK 26 Valhalla page
+      placeholder: "https://jdk.java.net/valhalla/"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tested
+    attributes:
+      label: Have you tested this build?
+      description: Did you manually test the new build?
+      options:
+        - "Yes - it works"
+        - "Yes - found issues"
+        - "No - not tested"
+    validations:
+      required: true
+
+  - type: textarea
+    id: download-urls
+    attributes:
+      label: Download URLs (Optional)
+      description: If you have the download URLs and checksums, please provide them
+      placeholder: |
+        macOS ARM64: https://download.java.net/...
+        SHA256: ...
+
+        macOS x64: https://download.java.net/...
+        SHA256: ...
+
+  - type: textarea
+    id: additional-notes
+    attributes:
+      label: Additional Notes
+      description: Any notable changes or issues in this build?
+      placeholder: Release notes or important changes

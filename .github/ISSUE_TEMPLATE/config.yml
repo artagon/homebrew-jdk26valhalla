@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: JDK Bug Database
+    url: https://bugs.openjdk.org/
+    about: Report JDK bugs to the official OpenJDK bug tracker
+  - name: JDK 26 EA Downloads
+    url: https://jdk.java.net/26/
+    about: Official JDK 26 Early Access builds download page
+  - name: Homebrew Documentation
+    url: https://docs.brew.sh/
+    about: Homebrew documentation for installation and troubleshooting
