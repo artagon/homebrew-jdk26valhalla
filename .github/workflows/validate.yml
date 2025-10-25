@@ -42,6 +42,14 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
 
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Homebrew/downloads
+          key: ${{ runner.os }}-${{ runner.arch }}-homebrew-jdk26valhalla-26-jep401ea2+1-1
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-homebrew-jdk26valhalla-
+
       - name: Test cask installation
         run: |
           brew install --cask artagon/jdk26valhalla/jdk26valhalla
@@ -77,6 +85,14 @@ jobs:
 
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Homebrew/downloads
+          key: ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdk26valhalla-26-jep401ea2+1-1
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdk26valhalla-
 
       - name: Display system info
         run: |
