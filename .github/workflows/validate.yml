@@ -1,5 +1,9 @@
 name: Validate
 
+# Security: First-time contributors require manual approval to run workflows
+# Configure in: Settings > Actions > General > Fork pull request workflows
+# Set to: "Require approval for first-time contributors"
+
 on:
   push:
     branches: [main]

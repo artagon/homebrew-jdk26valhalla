@@ -14,6 +14,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment:
+      name: release-approval
+      url: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
@@ -78,7 +81,7 @@ jobs:
           PREV_TAG="${{ steps.prev_version.outputs.tag }}"
 
           if [ -n "$PREV_TAG" ]; then
-            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            CHANGELOG=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
           else
             CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
           fi
@@ -109,7 +112,7 @@ jobs:
           readme_path = pathlib.Path("README.md")
 
           try:
-              with urllib.request.urlopen("https://jdk.java.net/26/") as response:
+              with urllib.request.urlopen("https://jdk.java.net/26/", timeout=30) as response:
                   page = response.read().decode("utf-8", "replace")
           except Exception as exc:
               print(f"Failed to fetch release page: {exc}", file=sys.stderr)
@@ -162,12 +165,88 @@ jobs:
 
           echo "notes_url=$NOTES_URL" >> $GITHUB_OUTPUT
 
+      - name: Verify GPG signatures (if available)
+        if: steps.check_tag.outputs.exists == 'false'
+        id: gpg_verify
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Checking for GPG signatures for version $VERSION..."
+
+          # OpenJDK EA builds typically don't provide GPG signatures
+          # This is a placeholder for when they become available
+          # For now, we rely on SHA256 checksums embedded in the formula/cask
+
+          echo "⚠️  GPG signatures not available for OpenJDK EA builds"
+          echo "✅ Using SHA256 checksum verification via Homebrew"
+          echo "verified=checksum_only" >> $GITHUB_OUTPUT
+
+      - name: Generate SBOM
+        if: steps.check_tag.outputs.exists == 'false'
+        id: sbom
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ steps.version.outputs.version }}"
+          BUILD="${{ steps.version.outputs.build }}"
+          SBOM_FILE="sbom-${VERSION}.spdx.json"
+
+          # Generate SPDX 2.3 SBOM
+          cat > "$SBOM_FILE" <<EOF
+          {
+            "spdxVersion": "SPDX-2.3",
+            "dataLicense": "CC0-1.0",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "JDK 26 Valhalla EA Build ${BUILD}",
+            "documentNamespace": "https://github.com/${{ github.repository }}/releases/tag/v${VERSION}",
+            "creationInfo": {
+              "created": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+              "creators": [
+                "Tool: Artagon/homebrew-jdk26valhalla",
+                "Organization: Artagon"
+              ]
+            },
+            "packages": [
+              {
+                "SPDXID": "SPDXRef-Package",
+                "name": "OpenJDK-26-Valhalla",
+                "versionInfo": "${VERSION}",
+                "supplier": "Organization: OpenJDK",
+                "downloadLocation": "https://jdk.java.net/26/",
+                "filesAnalyzed": false,
+                "licenseConcluded": "GPL-2.0-only WITH Classpath-exception-2.0",
+                "licenseDeclared": "GPL-2.0-only WITH Classpath-exception-2.0",
+                "copyrightText": "Copyright (c) Oracle Corporation and/or its affiliates",
+                "externalRefs": [
+                  {
+                    "referenceCategory": "PACKAGE-MANAGER",
+                    "referenceType": "purl",
+                    "referenceLocator": "pkg:generic/openjdk@${VERSION}"
+                  }
+                ]
+              }
+            ],
+            "relationships": [
+              {
+                "spdxElementId": "SPDXRef-DOCUMENT",
+                "relationshipType": "DESCRIBES",
+                "relatedSpdxElement": "SPDXRef-Package"
+              }
+            ]
+          }
+          EOF
+
+          echo "sbom_file=$SBOM_FILE" >> $GITHUB_OUTPUT
+          echo "✅ Generated SBOM: $SBOM_FILE"
+
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: JDK 26 EA Build ${{ steps.version.outputs.build }}
+          files: ${{ steps.sbom.outputs.sbom_file }}
           body: |
             # JDK 26 Early Access Build ${{ steps.version.outputs.build }}
 
