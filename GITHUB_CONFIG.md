@@ -43,7 +43,7 @@ This document summarizes the GitHub repository security configurations that have
 
 **Steps to Configure**:
 1. Navigate to: https://github.com/Artagon/homebrew-jdk26valhalla/settings/actions
-2. Scroll to "Fork pull request workflows from outside collaborators"
+2. Scroll to "Fork pull request workflows from Outside collaborators"
 3. Select: **"Require approval for first-time contributors"**
 
 **Why This Matters**: Prevents malicious actors from running harmful workflows through their first pull request.
