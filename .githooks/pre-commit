@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Git pre-commit hook to verify model context sync
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Get list of files being committed
+staged_files=$(git diff --cached --name-only)
+
+# Check if any model context related files are being committed
+model_context_files=$(echo "$staged_files" | grep -E '^\.(model-context|claude|gemini|github/copilot-instructions\.md|cursorrules|agents)' || true)
+
+# If no model context files are being committed, skip verification
+if [ -z "$model_context_files" ]; then
+    exit 0
+fi
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
+echo -e "${BLUE}Model Context Sync Verification${NC}" >&2
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
+echo "" >&2
+
+echo -e "${YELLOW}AI configuration files detected in commit:${NC}" >&2
+echo "$model_context_files" | sed 's/^/  /' >&2
+echo "" >&2
+
+# Check if .model-context/shared/ files are being modified
+shared_modified=$(echo "$staged_files" | grep -E '^\.model-context/shared/' || true)
+
+if [ -n "$shared_modified" ]; then
+    echo -e "${YELLOW}⚠ Shared context files modified:${NC}" >&2
+    echo "$shared_modified" | sed 's/^/  /' >&2
+    echo "" >&2
+    echo -e "${YELLOW}Checking if agent files are synced...${NC}" >&2
+    echo "" >&2
+fi
+
+# Run verification script
+if [ -x ./scripts/verify-model-context-sync.sh ]; then
+    if ./scripts/verify-model-context-sync.sh 2>&1; then
+        echo "" >&2
+        echo -e "${GREEN}✓ Model context sync verification passed${NC}" >&2
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
+        exit 0
+    else
+        echo "" >&2
+        echo -e "${RED}✗ Model context sync verification failed${NC}" >&2
+        echo "" >&2
+        echo -e "${YELLOW}Files are out of sync!${NC}" >&2
+        echo "" >&2
+        echo "Please run:" >&2
+        echo -e "  ${GREEN}./scripts/sync-model-context.sh${NC}" >&2
+        echo "" >&2
+        echo "Then stage the synced files:" >&2
+        echo -e "  ${GREEN}git add .claude/ .gemini/ .github/ .cursorrules .agents${NC}" >&2
+        echo "" >&2
+        echo "And try committing again." >&2
+        echo "" >&2
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
+        exit 1
+    fi
+else
+    echo -e "${YELLOW}⚠ Warning: verify-model-context-sync.sh not found or not executable${NC}" >&2
+    echo "Skipping sync verification" >&2
+    exit 0
+fi
