@@ -1,4 +1,4 @@
-cask "jdk26ea" do
+cask "jdk26valhalla" do
   arch arm: "aarch64", intel: "x64"
 
   version "26-jep401ea2+1-1,1"

@@ -20,7 +20,7 @@ This tap provides the latest Project Valhalla early-access builds implementing [
 
 ```bash
 brew tap Artagon/jdk26valhalla
-brew install --cask jdk26ea
+brew install --cask jdk26valhalla
 ```
 
 The cask installation places JDK in `/Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk` and integrates with macOS's Java management system.
@@ -29,7 +29,7 @@ The cask installation places JDK in `/Library/Java/JavaVirtualMachines/jdk-26-va
 
 ```bash
 brew tap Artagon/jdk26valhalla
-brew install jdk26ea
+brew install jdk26valhalla
 ```
 
 The formula installation creates symlinks in your Homebrew bin directory.
@@ -62,7 +62,7 @@ export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk/Contents
 
 **For formula installation:**
 ```bash
-export JAVA_HOME="$(brew --prefix jdk26ea)"
+export JAVA_HOME="$(brew --prefix jdk26valhalla)"
 ```
 
 ### Verifying Installation
@@ -88,7 +88,7 @@ The tap is automatically updated with new Valhalla builds. To update to the late
 
 ```bash
 brew update
-brew upgrade jdk26ea  # or brew upgrade --cask jdk26ea
+brew upgrade jdk26valhalla  # or brew upgrade --cask jdk26valhalla
 ```
 
 ## Issue Reporting
