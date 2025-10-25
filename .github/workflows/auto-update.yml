@@ -35,11 +35,11 @@ jobs:
           echo "build=$build" >> $GITHUB_OUTPUT
 
           # Get current version from cask
-          current_version=$(grep -oP 'version "\K[^"]+' Casks/jdk26ea.rb)
+          current_version=$(grep -oP 'version "\K[^"]+' Casks/jdk26valhalla.rb)
           current_build=$(echo "$current_version" | grep -oP '\+\K\d+')
 
           if [[ -z "$current_build" || ! "$current_build" =~ ^[0-9]+$ ]]; then
-            echo "Failed to determine current build from Casks/jdk26ea.rb"
+            echo "Failed to determine current build from Casks/jdk26valhalla.rb"
             exit 1
           fi
 
@@ -97,7 +97,7 @@ jobs:
 
           # Update Cask
           new_cask_version="26-ea+${build},${build}"
-          sed -i "s|version \".*\"|version \"${new_cask_version}\"|g" Casks/jdk26ea.rb
+          sed -i "s|version \".*\"|version \"${new_cask_version}\"|g" Casks/jdk26valhalla.rb
 
           # Update checksums in Cask
           awk -v arm="${{ steps.checksums.outputs.sha_mac_arm }}" \
@@ -107,7 +107,7 @@ jobs:
                  print "         intel: \"" intel "\""
                  next
                }
-               {print}' Casks/jdk26ea.rb > Casks/jdk26ea.rb.tmp && mv Casks/jdk26ea.rb.tmp Casks/jdk26ea.rb
+               {print}' Casks/jdk26valhalla.rb > Casks/jdk26valhalla.rb.tmp && mv Casks/jdk26valhalla.rb.tmp Casks/jdk26valhalla.rb
 
       - name: Update formula
         if: steps.fetch_version.outputs.needs_update == 'true'
@@ -116,8 +116,8 @@ jobs:
           current_build=${{ steps.fetch_version.outputs.current_build }}
 
           # Update Formula
-          sed -i "s/26-ea+${current_build}/26-ea+${build}/g" Formula/jdk26ea.rb
-          sed -i "s|jdk26/${current_build}/GPL|jdk26/${build}/GPL|g" Formula/jdk26ea.rb
+          sed -i "s/26-ea+${current_build}/26-ea+${build}/g" Formula/jdk26valhalla.rb
+          sed -i "s|jdk26/${current_build}/GPL|jdk26/${build}/GPL|g" Formula/jdk26valhalla.rb
 
           # Update checksums in Formula (supports both macOS and Linux ARM64/x64)
           awk -v mac_arm="${{ steps.checksums.outputs.sha_mac_arm }}" \
@@ -141,13 +141,13 @@ jobs:
                  else if (in_linux && in_arm_block) { sub(/sha256 ".*"/, "sha256 \"" linux_arm "\"") }
                  else if (in_linux && !in_arm_block) { sub(/sha256 ".*"/, "sha256 \"" linux_x64 "\"") }
                }
-               {print}' Formula/jdk26ea.rb > Formula/jdk26ea.rb.tmp && mv Formula/jdk26ea.rb.tmp Formula/jdk26ea.rb
+               {print}' Formula/jdk26valhalla.rb > Formula/jdk26valhalla.rb.tmp && mv Formula/jdk26valhalla.rb.tmp Formula/jdk26valhalla.rb
 
       - name: Validate syntax
         if: steps.fetch_version.outputs.needs_update == 'true'
         run: |
-          ruby -c Casks/jdk26ea.rb
-          ruby -c Formula/jdk26ea.rb
+          ruby -c Casks/jdk26valhalla.rb
+          ruby -c Formula/jdk26valhalla.rb
 
       - name: Create Pull Request
         if: steps.fetch_version.outputs.needs_update == 'true'

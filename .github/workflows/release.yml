@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Casks/jdk26ea.rb'
-      - 'Formula/jdk26ea.rb'
+      - 'Casks/jdk26valhalla.rb'
+      - 'Formula/jdk26valhalla.rb'
 
 permissions:
   contents: write
@@ -25,17 +25,17 @@ jobs:
 
       - name: Audit cask
         run: |
-          brew untap artagon/jdk26ea || true
-          brew tap --custom-remote artagon/jdk26ea "$GITHUB_WORKSPACE"
-          brew audit --cask artagon/jdk26ea/jdk26ea
+          brew untap artagon/jdk26valhalla || true
+          brew tap --custom-remote artagon/jdk26valhalla "$GITHUB_WORKSPACE"
+          brew audit --cask artagon/jdk26valhalla/jdk26valhalla
 
       - name: Extract version from cask
         id: version
         run: |
           set -euo pipefail
-          VERSION=$(grep -oP 'version "\K[^"]+' Casks/jdk26ea.rb)
+          VERSION=$(grep -oP 'version "\K[^"]+' Casks/jdk26valhalla.rb)
           if [[ -z "$VERSION" ]]; then
-            echo "Failed to extract version from Casks/jdk26ea.rb"
+            echo "Failed to extract version from Casks/jdk26valhalla.rb"
             exit 1
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -178,10 +178,10 @@ jobs:
             ### macOS & Linux
 
             ```bash
-            brew tap Artagon/jdk26ea
-            brew install --cask jdk26ea  # macOS only
+            brew tap Artagon/jdk26valhalla
+            brew install --cask jdk26valhalla  # macOS only
             # or
-            brew install jdk26ea  # macOS & Linux
+            brew install jdk26valhalla  # macOS & Linux
             ```
 
             ## Supported Platforms

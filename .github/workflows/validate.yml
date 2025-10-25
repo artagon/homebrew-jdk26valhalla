@@ -16,17 +16,17 @@ jobs:
 
       - name: Validate cask syntax
         run: |
-          brew style Casks/jdk26ea.rb
-          ruby -c Casks/jdk26ea.rb
+          brew style Casks/jdk26valhalla.rb
+          ruby -c Casks/jdk26valhalla.rb
 
       - name: Audit cask
         run: |
-          brew audit --cask artagon/jdk26ea/jdk26ea
+          brew audit --cask artagon/jdk26valhalla/jdk26valhalla
 
       - name: Validate formula syntax
         run: |
-          brew style Formula/jdk26ea.rb
-          ruby -c Formula/jdk26ea.rb
+          brew style Formula/jdk26valhalla.rb
+          ruby -c Formula/jdk26valhalla.rb
 
   test-install-macos:
     strategy:
@@ -41,13 +41,13 @@ jobs:
 
       - name: Test cask installation
         run: |
-          brew install --cask artagon/jdk26ea/jdk26ea
+          brew install --cask artagon/jdk26valhalla/jdk26valhalla
 
       - name: Verify installation
         run: |
-          if [ -d "/Library/Java/JavaVirtualMachines/jdk-26-ea.jdk" ]; then
+          if [ -d "/Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk" ]; then
             echo "✅ JDK installed successfully"
-            /Library/Java/JavaVirtualMachines/jdk-26-ea.jdk/Contents/Home/bin/java -version
+            /Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk/Contents/Home/bin/java -version
           else
             echo "❌ JDK installation failed"
             exit 1
@@ -56,7 +56,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          brew uninstall --cask artagon/jdk26ea/jdk26ea || true
+          brew uninstall --cask artagon/jdk26valhalla/jdk26valhalla || true
 
   test-install-linux:
     strategy:
@@ -82,11 +82,11 @@ jobs:
 
       - name: Test formula installation
         run: |
-          brew install artagon/jdk26ea/jdk26ea
+          brew install artagon/jdk26valhalla/jdk26valhalla
 
       - name: Verify installation
         run: |
-          JDK_PREFIX="$(brew --prefix jdk26ea)"
+          JDK_PREFIX="$(brew --prefix jdk26valhalla)"
           if [ -d "$JDK_PREFIX" ]; then
             echo "✅ JDK installed successfully at $JDK_PREFIX"
             "$JDK_PREFIX/bin/java" -version
@@ -97,7 +97,7 @@ jobs:
 
       - name: Test JAVA_HOME setup
         run: |
-          export JAVA_HOME="$(brew --prefix jdk26ea)"
+          export JAVA_HOME="$(brew --prefix jdk26valhalla)"
           echo "JAVA_HOME=$JAVA_HOME"
           echo "Testing java compiler and runtime..."
           "$JAVA_HOME/bin/java" -version
@@ -105,14 +105,14 @@ jobs:
 
       - name: Test basic Java functionality
         run: |
-          export JAVA_HOME="$(brew --prefix jdk26ea)"
+          export JAVA_HOME="$(brew --prefix jdk26valhalla)"
           export PATH="$JAVA_HOME/bin:$PATH"
 
           # Create and compile a test program
           cat > HelloWorld.java << 'EOF'
           public class HelloWorld {
               public static void main(String[] args) {
-                  System.out.println("JDK 26 EA is working!");
+                  System.out.println("JDK 26 Valhalla is working!");
                   System.out.println("Java version: " + System.getProperty("java.version"));
               }
           }
@@ -124,7 +124,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          brew uninstall --formula jdk26ea || true
+          brew uninstall --formula jdk26valhalla || true
 
   validation-status:
     name: Validation Status

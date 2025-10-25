@@ -17,5 +17,5 @@ jobs:
 
       - name: Audit cask
         run: |
-          brew style Casks/jdk26ea.rb || true
-          ruby -c Casks/jdk26ea.rb
+          brew style Casks/jdk26valhalla.rb || true
+          ruby -c Casks/jdk26valhalla.rb
