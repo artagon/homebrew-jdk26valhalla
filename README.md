@@ -1,6 +1,6 @@
-# homebrew-jdk26valhalla
+# homebrew-jdkvalhalla
 
-Homebrew tap for JDK 26 Project Valhalla builds with automated updates, CI/CD, and support for both macOS and Linux.
+Homebrew tap for JDK Project Valhalla early-access builds with automated updates, CI/CD, and support for both macOS and Linux. Currently provides JDK 26 and JDK 27 Valhalla builds.
 
 [![Release](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/release.yml/badge.svg)](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/release.yml)
 [![Validate](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/validate.yml/badge.svg)](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/validate.yml)
@@ -39,29 +39,40 @@ This tap provides the latest Project Valhalla early-access builds implementing [
 
 ## Quick Start
 
-### Cask Installation (macOS)
+### Add the Tap
 
 ```bash
 brew tap Artagon/jdk26valhalla
-brew install --cask jdk26valhalla
 ```
 
-The cask installation places JDK in `/Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk` and integrates with macOS's Java management system.
+### Cask Installation (macOS) -- Latest (JDK 27)
+
+```bash
+brew install --cask jdkvalhalla
+```
+
+The cask installation places JDK in `/Library/Java/JavaVirtualMachines/jdk-valhalla.jdk` and integrates with macOS's Java management system. The cask always tracks the latest Valhalla build (currently JDK 27).
 
 ### Formula Installation (macOS/Linux)
 
 ```bash
-brew tap Artagon/jdk26valhalla
-brew install jdk26valhalla
+# Install JDK 27 Valhalla (latest)
+brew install jdkvalhalla@27
+
+# Install JDK 26 Valhalla (older)
+brew install jdkvalhalla@26
 ```
 
 The formula installation creates symlinks in your Homebrew bin directory.
 
-## Current Version
+## Current Versions
 
-**JDK 26 Valhalla Build 26-jep401ea2+1-1** (Released: 2025-10-10)
+| Build | Version | Formula / Cask |
+|-------|---------|----------------|
+| **JDK 27 Valhalla** | 27-jep401ea3+1-1 | `jdkvalhalla@27` / `jdkvalhalla` (cask) |
+| **JDK 26 Valhalla** | 26-jep401ea2+1-1 | `jdkvalhalla@26` |
 
-This build implements:
+Both builds implement:
 - JEP 401: Value Classes and Objects
 
 ## Features
@@ -94,19 +105,20 @@ After installation, you may want to set `JAVA_HOME`:
 
 **For cask installation:**
 ```bash
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk/Contents/Home"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-valhalla.jdk/Contents/Home"
 ```
 
 **For formula installation:**
 ```bash
-export JAVA_HOME="$(brew --prefix jdk26valhalla)"
+export JAVA_HOME="$(brew --prefix jdkvalhalla@27)"
 ```
 
 ### Verifying Installation
 
 ```bash
 java -version
-# Should output: openjdk version "26-jep401ea2" ...
+# JDK 27: openjdk version "27-jep401ea3" ...
+# JDK 26: openjdk version "26-jep401ea2" ...
 ```
 
 ### Using Value Classes (JEP 401)
@@ -115,7 +127,7 @@ Project Valhalla introduces value classes that provide better performance and me
 
 ```java
 // Enable preview features to use value classes
-javac --enable-preview --release 26 MyValueClass.java
+javac --enable-preview --release 27 MyValueClass.java
 java --enable-preview MyValueClass
 ```
 
@@ -125,7 +137,7 @@ The tap is automatically updated with new Valhalla builds. To update to the late
 
 ```bash
 brew update
-brew upgrade jdk26valhalla  # or brew upgrade --cask jdk26valhalla
+brew upgrade jdkvalhalla@27  # or brew upgrade --cask jdkvalhalla
 ```
 
 ## Issue Reporting
@@ -169,7 +181,7 @@ Or visit the [Actions tab](https://github.com/Artagon/homebrew-jdk26valhalla/act
 
 ### Technical Specifications
 - **[Latest JEP 401 Specification](http://cr.openjdk.java.net/~dlsmith/jep401/latest)** - Detailed technical specification and implementation notes
-- **[API Documentation](https://download.java.net/java/early_access/valhalla/26/docs/api/)** - JavaDoc for Valhalla early-access builds
+- **[API Documentation](https://download.java.net/java/early_access/valhalla/docs/api/)** - JavaDoc for Valhalla early-access builds
 - **[State of Valhalla (Brian Goetz)](https://cr.openjdk.java.net/~briangoetz/valhalla/sov/)** - Series of documents explaining Valhalla's design and evolution
 - **[Valhalla Mailing List Archives](https://mail.openjdk.org/pipermail/valhalla-dev/)** - Development discussions and technical details
 
@@ -186,7 +198,7 @@ Or visit the [Actions tab](https://github.com/Artagon/homebrew-jdk26valhalla/act
 ### Experimental Features
 Remember that Valhalla builds include preview features requiring the `--enable-preview` flag:
 ```bash
-javac --enable-preview --release 26 YourCode.java
+javac --enable-preview --release 27 YourCode.java
 java --enable-preview YourClass
 ```
 
@@ -202,10 +214,10 @@ These are early-access builds provided for testing and development purposes. The
 
 ## Links
 
-- [JDK 26 Valhalla Downloads](https://jdk.java.net/valhalla/)
+- [Project Valhalla Downloads](https://jdk.java.net/valhalla/)
 - [JEP 401: Value Classes and Objects](https://openjdk.org/jeps/401)
 - [OpenJDK Project Valhalla](https://openjdk.org/projects/valhalla/)
 - [Project Valhalla Early Access](https://openjdk.org/projects/valhalla/early-access)
 - [Latest JEP 401 Specification](http://cr.openjdk.java.net/~dlsmith/jep401/latest)
-- [Valhalla API Documentation](https://download.java.net/java/early_access/valhalla/26/docs/api/)
+- [Valhalla API Documentation](https://download.java.net/java/early_access/valhalla/docs/api/)
 - [Homebrew Documentation](https://docs.brew.sh/)

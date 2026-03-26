@@ -23,7 +23,7 @@ NC='\033[0m' # No Color
 types="feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert"
 
 # Valid scopes (optional - add your project-specific scopes)
-scopes="cask|formula|workflow|docs|scripts"
+scopes="cask|formula|workflow|docs|scripts|security"
 
 # Regex pattern for conventional commits
 # Matches:
@@ -52,7 +52,7 @@ fi
 first_line=$(echo "$commit_msg" | head -n1)
 
 if ! echo "$first_line" | grep -qE "$pattern"; then
-    echo -e "${RED}✗ Invalid commit message format${NC}" >&2
+    echo -e "${RED}x Invalid commit message format${NC}" >&2
     echo "" >&2
     echo "Commit message must follow Conventional Commits specification:" >&2
     echo "" >&2
@@ -64,14 +64,15 @@ if ! echo "$first_line" | grep -qE "$pattern"; then
     echo "  feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert" >&2
     echo "" >&2
     echo -e "${YELLOW}Valid scopes (optional):${NC}" >&2
-    echo "  cask, formula, workflow, docs, scripts" >&2
+    echo "  cask, formula, workflow, docs, scripts, security" >&2
     echo "" >&2
     echo -e "${YELLOW}Examples:${NC}" >&2
-    echo "  feat(cask): add support for JDK 26 EA Build 21" >&2
+    echo "  feat(cask): add support for JDK Valhalla build" >&2
     echo "  fix(formula): correct SHA256 checksum for Linux ARM64" >&2
     echo "  docs: update README with installation instructions" >&2
     echo "  chore(workflow): update auto-update schedule" >&2
     echo "  feat(cask)!: breaking change with exclamation mark" >&2
+    echo "  security(workflow): implement supply chain hardening" >&2
     echo "" >&2
     echo -e "${YELLOW}Your commit message:${NC}" >&2
     echo "  $first_line" >&2
@@ -85,12 +86,12 @@ description=$(echo "$first_line" | sed -E "s/^(${types})(\(${scopes}\))?!?: //")
 description_length=${#description}
 
 if [ $description_length -lt 10 ]; then
-    echo -e "${YELLOW}⚠ Warning: Commit description is very short ($description_length chars)${NC}" >&2
+    echo -e "${YELLOW}Warning: Commit description is very short ($description_length chars)${NC}" >&2
     echo "  Consider adding more detail about what changed." >&2
 fi
 
 if [ $description_length -gt 100 ]; then
-    echo -e "${RED}✗ Commit description is too long ($description_length chars)${NC}" >&2
+    echo -e "${RED}x Commit description is too long ($description_length chars)${NC}" >&2
     echo "  Please keep the first line under 100 characters." >&2
     echo "  Use the commit body for additional details." >&2
     exit 1
@@ -100,15 +101,17 @@ fi
 if echo "$description" | grep -qE "^[a-z]"; then
     : # Good - starts with lowercase
 else
-    echo -e "${YELLOW}⚠ Warning: Commit description should start with lowercase${NC}" >&2
+    echo -e "${YELLOW}Warning: Commit description should start with lowercase${NC}" >&2
     echo "  Current: $description" >&2
-    echo "  Consider: $(echo "$description" | sed 's/^\(.\)/\L\1/')" >&2
+    first_char=$(echo "$description" | cut -c1 | tr '[:upper:]' '[:lower:]')
+    rest=$(echo "$description" | cut -c2-)
+    echo "  Consider: ${first_char}${rest}" >&2
 fi
 
 # Check if description ends with period (shouldn't according to convention)
 if echo "$description" | grep -qE "\.$"; then
-    echo -e "${YELLOW}⚠ Warning: Commit description should not end with a period${NC}" >&2
+    echo -e "${YELLOW}Warning: Commit description should not end with a period${NC}" >&2
 fi
 
-echo -e "${GREEN}✓ Commit message follows Conventional Commits format${NC}" >&2
+echo -e "${GREEN}Commit message follows Conventional Commits format${NC}" >&2
 exit 0

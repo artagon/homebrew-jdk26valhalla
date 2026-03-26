@@ -129,7 +129,7 @@ permissions:
 - name: Fetch and validate version
   run: |
     # Fetch external data
-    BUILD=$(curl -s https://jdk.java.net/26/ | grep -oP 'Build \K[0-9]+' | head -1)
+    BUILD=$(curl -s https://jdk.java.net/valhalla/ | grep -oP 'Build \K[0-9]+' | head -1)
 
     # ✅ CRITICAL - Validate format and range
     if ! [[ "$BUILD" =~ ^[0-9]{1,3}$ ]]; then
@@ -153,7 +153,7 @@ permissions:
     URL=$(grep -oP 'href="\K[^"]*openjdk.*\.tar\.gz' page.html | head -1)
 
     # Validate URL format
-    if ! [[ "$URL" =~ ^https://download\.java\.net/java/early_access/jdk26/[0-9]+/GPL/openjdk-26-ea\+[0-9]+_[a-z0-9_-]+\.tar\.gz$ ]]; then
+    if ! [[ "$URL" =~ ^https://download\.java\.net/java/early_access/valhalla/[0-9]+/GPL/openjdk-valhalla\+[0-9]+_[a-z0-9_-]+\.tar\.gz$ ]]; then
       echo "❌ Invalid URL format: $URL"
       exit 1
     fi
@@ -195,7 +195,7 @@ permissions:
 # ✅ SECURE - Download and verify
 - name: Download and verify checksums
   run: |
-    URL="https://download.java.net/java/early_access/jdk26/20/GPL/openjdk-26-ea+20_macos-aarch64_bin.tar.gz"
+    URL="https://download.java.net/java/early_access/valhalla/20/GPL/openjdk-valhalla+20_macos-aarch64_bin.tar.gz"
 
     # 1. Download file
     curl -fsSL "$URL" -o jdk.tar.gz
@@ -250,7 +250,7 @@ jobs:
       - name: Fetch and validate version
         id: version
         run: |
-          BUILD=$(curl -s https://jdk.java.net/26/ | grep -oP 'Build \K[0-9]+' | head -1)
+          BUILD=$(curl -s https://jdk.java.net/valhalla/ | grep -oP 'Build \K[0-9]+' | head -1)
 
           if ! [[ "$BUILD" =~ ^[0-9]{1,3}$ ]] || [ "$BUILD" -lt 1 ] || [ "$BUILD" -gt 999 ]; then
             echo "Invalid build: $BUILD"
@@ -267,13 +267,13 @@ jobs:
 
       - name: Update files
         run: |
-          sed -i "s/version \".*\"/version \"26-ea+${{ steps.version.outputs.build }}\"/" Casks/jdk26ea.rb
-          sed -i "s/sha256 \"[a-f0-9]*\"/sha256 \"${{ steps.checksums.outputs.sha }}\"/" Casks/jdk26ea.rb
+          sed -i "s/version \".*\"/version \"27-jep401ea3+${{ steps.version.outputs.build }}\"/" Casks/jdkvalhalla.rb
+          sed -i "s/sha256 \"[a-f0-9]*\"/sha256 \"${{ steps.checksums.outputs.sha }}\"/" Casks/jdkvalhalla.rb
 
       - name: Validate changes
         run: |
-          ruby -c Casks/jdk26ea.rb
-          brew style Casks/jdk26ea.rb
+          ruby -c Casks/jdkvalhalla.rb
+          brew style Casks/jdkvalhalla.rb
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38  # v5.0.0
@@ -313,11 +313,11 @@ jobs:
 
       - name: Validate cask syntax
         run: |
-          brew style Casks/jdk26ea.rb
-          ruby -c Casks/jdk26ea.rb
+          brew style Casks/jdkvalhalla.rb
+          ruby -c Casks/jdkvalhalla.rb
 
       - name: Audit cask
-        run: brew audit --cask Casks/jdk26ea.rb
+        run: brew audit --cask Casks/jdkvalhalla.rb
 
   test-install-macos:
     strategy:
@@ -331,13 +331,13 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
 
       - name: Test cask installation
-        run: brew install --cask Casks/jdk26ea.rb
+        run: brew install --cask Casks/jdkvalhalla.rb
 
       - name: Verify installation
         run: |
-          if [ -d "/Library/Java/JavaVirtualMachines/jdk-26-ea.jdk" ]; then
+          if [ -d "/Library/Java/JavaVirtualMachines/jdk-valhalla.jdk" ]; then
             echo "✅ JDK installed successfully"
-            /Library/Java/JavaVirtualMachines/jdk-26-ea.jdk/Contents/Home/bin/java -version
+            /Library/Java/JavaVirtualMachines/jdk-valhalla.jdk/Contents/Home/bin/java -version
           else
             echo "❌ JDK installation failed"
             exit 1
@@ -345,7 +345,7 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: brew uninstall --cask Casks/jdk26ea.rb || true
+        run: brew uninstall --cask Casks/jdkvalhalla.rb || true
 
   validation-status:
     name: Validation Status

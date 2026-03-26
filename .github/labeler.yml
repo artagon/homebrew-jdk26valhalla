@@ -1,3 +1,17 @@
 deps:valhalla:
   - 'Formula/**'
   - 'Casks/**'
+
+ci:
+  - '.github/**'
+
+docs:
+  - '*.md'
+  - 'docs/**'
+
+scripts:
+  - 'scripts/**'
+
+security:
+  - 'SECURITY.md'
+  - '.githooks/**'

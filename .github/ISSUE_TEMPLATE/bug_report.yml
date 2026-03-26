@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a problem with JDK 26 EA installation or functionality
+description: Report a problem with JDK Valhalla installation or functionality
 title: "[Bug]: "
 labels: ["bug", "triage"]
 body:
@@ -12,10 +12,11 @@ body:
     id: installation-type
     attributes:
       label: Installation Type
-      description: How did you install JDK 26 EA?
+      description: How did you install JDK Valhalla?
       options:
-        - Cask (brew install --cask jdk26ea)
-        - Formula (brew install jdk26ea)
+        - Cask (brew install --cask jdkvalhalla)
+        - Formula JDK 27 (brew install jdkvalhalla@27)
+        - Formula JDK 26 (brew install jdkvalhalla@26)
         - Other
     validations:
       required: true
@@ -23,9 +24,9 @@ body:
   - type: input
     id: jdk-build
     attributes:
-      label: JDK 26 EA Build Number
+      label: JDK Valhalla Build Number
       description: Which build number are you using?
-      placeholder: "e.g., 26-ea+20"
+      placeholder: "e.g., 27-jep401ea3+1-1 or 26-jep401ea2+1-1"
     validations:
       required: true
 

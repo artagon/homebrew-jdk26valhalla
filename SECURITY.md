@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the security measures and supply chain security practices for the homebrew-jdk26valhalla Homebrew tap. We take the security of our users seriously and have implemented multiple layers of protection.
+This document outlines the security measures and supply chain security practices for the jdkvalhalla Homebrew tap. We take the security of our users seriously and have implemented multiple layers of protection.
 
 ## Reporting Security Vulnerabilities
 
@@ -106,7 +106,7 @@ Each release includes an SBOM in SPDX 2.3 format:
 
 1. **Check the Formula/Cask**:
    ```bash
-   brew cat artagon/jdk26valhalla/jdk26valhalla
+   brew cat artagon/jdk26valhalla/jdkvalhalla@27
    ```
    Verify the SHA256 checksums are present
 
@@ -222,5 +222,5 @@ This security policy is based on industry best practices and GitHub's security r
 
 ---
 
-**Last Updated**: 2025-10-25
-**Policy Version**: 1.0
+**Last Updated**: 2026-03-26
+**Policy Version**: 1.1

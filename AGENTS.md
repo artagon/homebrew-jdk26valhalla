@@ -5,29 +5,34 @@
 # OpenAI Codex Agent Instructions
 # https://github.com/openai/codex
 
-# homebrew-jdk26valhalla - Repository Context
+# homebrew-jdkvalhalla - Repository Context
 
 ## Project Overview
 
 **Repository:** https://github.com/Artagon/homebrew-jdk26valhalla
-**Purpose:** Homebrew tap providing automated distribution of JDK 26 Project Valhalla builds (JEP 401)
-**Current Version:** JDK 26 Valhalla Build 26-jep401ea2+1-1 (Released: 2025-10-10)
+**Purpose:** Homebrew tap providing automated distribution of JDK Project Valhalla builds (JEP 401)
+**Current Version:** JDK Valhalla Build 26-jep401ea2+1-1 (Released: 2025-10-10)
 **License:** GPL-2.0 with Classpath Exception (matching OpenJDK)
 
-This is a Homebrew tap that automates the distribution and updating of JDK 26 Project Valhalla builds from [jdk.java.net/valhalla](https://jdk.java.net/valhalla/). It provides both a **cask** (native macOS app installation) and a **formula** (command-line package) for cross-platform support. Project Valhalla implements Value Classes and Objects (JEP 401) to improve Java's performance and memory efficiency.
+This is a Homebrew tap that automates the distribution and updating of JDK Project Valhalla builds from [jdk.java.net/valhalla](https://jdk.java.net/valhalla/). It provides both a **cask** (native macOS app installation) and **formulas** (command-line packages) for cross-platform support. Project Valhalla implements Value Classes and Objects (JEP 401) to improve Java's performance and memory efficiency.
 
 ## Architecture
 
 ### Distribution Methods
 
-1. **Cask (`Casks/jdk26ea.rb`)** - macOS only
-   - Installs to: `/Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk`
+1. **Cask (`Casks/jdkvalhalla.rb`)** - macOS only
+   - Installs to: `/Library/Java/JavaVirtualMachines/jdk-valhalla.jdk`
    - Integrates with macOS Java management system
    - Uses secure `ditto` command for installation
    - Path validation to prevent directory traversal attacks
    - Supports both ARM64 (Apple Silicon) and Intel x64
 
-2. **Formula (`Formula/jdk26ea.rb`)** - macOS and Linux
+2. **Formula (`Formula/jdkvalhalla@26.rb`)** - macOS and Linux (JDK 26)
+   - Creates symlinks in Homebrew bin directory
+   - Cross-platform (macOS ARM64/x64, Linux ARM64/x64)
+   - Used for scripting and server environments
+
+3. **Formula (`Formula/jdkvalhalla@27.rb`)** - macOS and Linux (JDK 27)
    - Creates symlinks in Homebrew bin directory
    - Cross-platform (macOS ARM64/x64, Linux ARM64/x64)
    - Used for scripting and server environments
@@ -53,7 +58,7 @@ This is a Homebrew tap that automates the distribution and updating of JDK 26 Pr
 ## Directory Structure
 
 ```
-homebrew-jdk26/
+homebrew-jdk26valhalla/
 ├── .github/
 │   ├── workflows/           # GitHub Actions automation
 │   │   ├── audit.yml        # Weekly syntax validation
@@ -66,9 +71,10 @@ homebrew-jdk26/
 ├── .githooks/               # Git commit message validation
 │   └── commit-msg           # Semantic commit enforcement
 ├── Formula/
-│   └── jdk26ea.rb          # Homebrew formula (cross-platform)
+│   ├── jdkvalhalla@26.rb   # Homebrew formula - JDK 26 (cross-platform)
+│   └── jdkvalhalla@27.rb   # Homebrew formula - JDK 27 (cross-platform)
 ├── Casks/
-│   └── jdk26ea.rb          # Homebrew cask (macOS only)
+│   └── jdkvalhalla.rb      # Homebrew cask (macOS only)
 ├── scripts/
 │   └── update.sh           # Manual update script
 ├── README.md
@@ -79,9 +85,9 @@ homebrew-jdk26/
 
 ### 1. Auto-Update (`auto-update.yml`)
 - **Frequency:** Daily at 6:00 AM UTC
-- **Purpose:** Check for new JDK 26 EA builds and create PRs automatically
+- **Purpose:** Check for new JDK Valhalla builds and create PRs automatically
 - **Process:**
-  1. Scrapes jdk.java.net/26 for latest build number
+  1. Scrapes jdk.java.net/valhalla for latest build number
   2. Downloads SHA256 checksums from official sources
   3. Updates cask and formula with new version/checksums
   4. Validates Ruby syntax
@@ -141,7 +147,7 @@ homebrew-jdk26/
 
 **Examples:**
 ```bash
-feat(cask): add support for JDK 26 EA Build 21
+feat(cask): add support for JDK Valhalla Build 21
 fix(formula): correct SHA256 checksum for Linux ARM64
 docs: update README with new installation instructions
 chore(workflow): update auto-update schedule
@@ -149,7 +155,7 @@ chore(workflow): update auto-update schedule
 
 **Breaking Changes:**
 ```bash
-feat(cask)!: rename from jdk26valhalla to jdk26ea
+feat(cask)!: rename from jdk26valhalla to jdkvalhalla
 
 BREAKING CHANGE: Users must uninstall old cask and reinstall with new name
 ```
@@ -217,8 +223,9 @@ BREAKING CHANGE: Users must uninstall old cask and reinstall with new name
 ```
 
 ### Version Locations
-- `Casks/jdk26ea.rb` - Line 4: `version "26-jep401ea2+1-1,1"`
-- `Formula/jdk26ea.rb` - Line 4: `version "26-jep401ea2+1-1"`
+- `Casks/jdkvalhalla.rb` - version string
+- `Formula/jdkvalhalla@26.rb` - version string
+- `Formula/jdkvalhalla@27.rb` - version string
 - `README.md` - Current version display
 
 ## Testing
@@ -246,16 +253,16 @@ Each test verifies:
 
 **Cask:**
 ```bash
-brew install --cask Casks/jdk26ea.rb
+brew install --cask Casks/jdkvalhalla.rb
 java -version
-brew uninstall --cask jdk26ea
+brew uninstall --cask jdkvalhalla
 ```
 
 **Formula:**
 ```bash
-brew install Formula/jdk26ea.rb
+brew install Formula/jdkvalhalla@26.rb
 java -version
-brew uninstall jdk26ea
+brew uninstall jdkvalhalla@26
 ```
 
 ## Common Tasks
@@ -266,23 +273,25 @@ brew uninstall jdk26ea
 2. **Manual:**
    ```bash
    ./scripts/update.sh
-   git add Formula/jdk26ea.rb Casks/jdk26ea.rb
-   git commit -m "feat: update to JDK 26 EA Build XX"
+   git add Formula/jdkvalhalla@26.rb Formula/jdkvalhalla@27.rb Casks/jdkvalhalla.rb
+   git commit -m "feat: update to JDK Valhalla Build XX"
    ```
 
 ### Fix RuboCop Violations
 
 ```bash
 # Check style
-brew style Casks/jdk26ea.rb
-brew style Formula/jdk26ea.rb
+brew style Casks/jdkvalhalla.rb
+brew style Formula/jdkvalhalla@26.rb
+brew style Formula/jdkvalhalla@27.rb
 
 # Audit
-brew audit --cask Casks/jdk26ea.rb
+brew audit --cask Casks/jdkvalhalla.rb
 
 # Validate syntax
-ruby -c Casks/jdk26ea.rb
-ruby -c Formula/jdk26ea.rb
+ruby -c Casks/jdkvalhalla.rb
+ruby -c Formula/jdkvalhalla@26.rb
+ruby -c Formula/jdkvalhalla@27.rb
 ```
 
 ### Create Release
@@ -312,7 +321,7 @@ git push origin main
 
 ### Scripts
 - `scripts/update.sh` - Manual update automation
-  - Scrapes jdk.java.net/26
+  - Scrapes jdk.java.net/valhalla
   - Downloads SHA256 checksums
   - Updates cask and formula
   - Validates syntax
@@ -321,7 +330,7 @@ git push origin main
 ## External Dependencies
 
 ### Data Sources
-- `https://jdk.java.net/valhalla/` - Official JDK 26 Valhalla page
+- `https://jdk.java.net/valhalla/` - Official JDK Valhalla page
 - `https://download.java.net/java/early_access/valhalla/26/{build}/` - Binary downloads
 - `https://openjdk.org/jeps/401` - JEP 401: Value Classes and Objects
 - `http://cr.openjdk.java.net/~dlsmith/jep401/latest` - Latest JEP 401 specification
@@ -358,7 +367,7 @@ This repository uses a dedicated SSH identity:
 - Removed `CONTRIBUTING.md` (simplified docs)
 - Replaced `rsync` with `ditto` (security)
 - Added comprehensive CI testing
-- Repository renamed from `jdk26valhalla` to `jdk26ea`
+- Repository renamed from `jdk26ea` to `jdkvalhalla`
 
 ## Troubleshooting
 
@@ -373,22 +382,22 @@ This repository uses a dedicated SSH identity:
 - Ensure sufficient permissions for `/Library/Java/JavaVirtualMachines/`
 
 ### CI Failures
-- Check Ruby syntax: `ruby -c Casks/jdk26ea.rb`
-- Run brew audit: `brew audit --cask Casks/jdk26ea.rb`
+- Check Ruby syntax: `ruby -c Casks/jdkvalhalla.rb`
+- Run brew audit: `brew audit --cask Casks/jdkvalhalla.rb`
 - Verify all platform URLs are accessible
 - Confirm checksums are correct
 
 ## Project History
 
 - Created from `homebrew-jdk26` template for Project Valhalla builds
-- Focuses specifically on JDK 26 Valhalla builds (JEP 401)
+- Focuses specifically on JDK Valhalla builds (JEP 401)
 - Build 26-jep401ea2+1-1 current as of 2025-10-10
 - Implements Value Classes and Objects features
 - Active maintenance and improvements ongoing
 
 
 
-# AI Assistant Instructions for homebrew-jdk26ea
+# AI Assistant Instructions for homebrew-jdkvalhalla
 
 ## Domain-Specific Skills
 
@@ -405,7 +414,7 @@ This repository uses domain-organized skill files for specialized expertise. AI 
 ## Project-Specific Requirements
 
 ### Repository Context
-- **Purpose**: Homebrew tap for JDK 26 Project Valhalla builds (JEP 401)
+- **Purpose**: Homebrew tap for JDK Project Valhalla builds (JEP 401)
 - **Platforms**: macOS (ARM64, x64), Linux (ARM64, x64)
 - **Features**: Value Classes and Objects, enhanced performance and memory efficiency
 - **Automation**: Daily auto-updates, automated releases, multi-platform CI testing
@@ -423,32 +432,33 @@ Valid scopes: cask, formula, workflow, docs, scripts
 
 **Examples:**
 ```bash
-feat(cask): add support for JDK 26 EA Build 21
+feat(cask): add support for JDK Valhalla Build 21
 fix(formula): correct SHA256 checksum for Linux ARM64
 ci(workflow): pin action to commit SHA for security
 ```
 
 ### File Structure
 ```
-homebrew-jdk26/
-├── Casks/jdk26ea.rb           # macOS cask
-├── Formula/jdk26ea.rb         # Linux/macOS formula
-├── .github/workflows/         # CI/CD automation
-├── scripts/                   # Update and sync scripts
-└── .model-context/            # AI configuration
-    ├── skills/               # Domain-specific skills
-    ├── shared/               # Shared context
-    └── agents/               # Agent-specific overrides
+homebrew-jdk26valhalla/
+├── Casks/jdkvalhalla.rb           # macOS cask
+├── Formula/jdkvalhalla@26.rb      # JDK 26 formula (Linux/macOS)
+├── Formula/jdkvalhalla@27.rb      # JDK 27 formula (Linux/macOS)
+├── .github/workflows/             # CI/CD automation
+├── scripts/                       # Update and sync scripts
+└── .model-context/                # AI configuration
+    ├── skills/                    # Domain-specific skills
+    ├── shared/                    # Shared context
+    └── agents/                    # Agent-specific overrides
 ```
 
 ### Version Updates
 
 When updating to a new JDK build:
 
-1. **Update version** in both Casks/jdk26ea.rb and Formula/jdk26ea.rb
+1. **Update version** in Casks/jdkvalhalla.rb and relevant Formula/jdkvalhalla@{version}.rb
 2. **Download and verify checksums** for all 4 platforms
 3. **Validate changes** with brew style and brew audit
-4. **Commit** with semantic message: `feat: update to JDK 26 EA Build XX`
+4. **Commit** with semantic message: `feat: update to JDK Valhalla Build XX`
 
 **Reference Skills:**
 - [Homebrew Development](../skills/homebrew.md#version-management)
@@ -469,15 +479,17 @@ When updating to a new JDK build:
 **Before Committing:**
 ```bash
 # Syntax validation
-ruby -c Casks/jdk26ea.rb
-ruby -c Formula/jdk26ea.rb
+ruby -c Casks/jdkvalhalla.rb
+ruby -c Formula/jdkvalhalla@26.rb
+ruby -c Formula/jdkvalhalla@27.rb
 
 # Style checking
-brew style Casks/jdk26ea.rb Formula/jdk26ea.rb
+brew style Casks/jdkvalhalla.rb Formula/jdkvalhalla@26.rb Formula/jdkvalhalla@27.rb
 
 # Audit
-brew audit --cask Casks/jdk26ea.rb
-brew audit --formula Formula/jdk26ea.rb
+brew audit --cask Casks/jdkvalhalla.rb
+brew audit --formula Formula/jdkvalhalla@26.rb
+brew audit --formula Formula/jdkvalhalla@27.rb
 ```
 
 **CI Testing:**
@@ -508,7 +520,7 @@ gh pr create --title "feat: description" --body "..."
 ### Automation
 
 **Daily Auto-Updates** (6 AM UTC):
-- Scrapes https://jdk.java.net/26/ for new builds
+- Scrapes https://jdk.java.net/valhalla/ for new builds
 - Downloads and verifies checksums
 - Creates PR if new build available
 
@@ -527,7 +539,7 @@ gh pr create --title "feat: description" --body "..."
 1. Run `./scripts/update.sh <build-number>` or update manually
 2. Verify checksums for all 4 platforms
 3. Test: `brew style` and `brew audit`
-4. Commit: `feat: update to JDK 26 EA Build XX`
+4. Commit: `feat: update to JDK Valhalla Build XX`
 5. Push and create PR
 
 **Skills:** [homebrew.md](../skills/homebrew.md), [security.md](../skills/security.md#cryptographic-verification)
@@ -624,7 +636,7 @@ When in doubt:
 - Follow semantic commit format
 - Test before committing
 
-# Security Guidelines for homebrew-jdk26ea
+# Security Guidelines for homebrew-jdkvalhalla
 
 ## 1. GitHub Actions Security
 
@@ -704,7 +716,7 @@ permissions:
 ## 5. New Security Rule
 - Always validate API responses
 
-# Code Style Guide for homebrew-jdk26ea
+# Code Style Guide for homebrew-jdkvalhalla
 
 ## Commit Messages
 
@@ -727,15 +739,15 @@ type(scope): description
 - `ci` - CI configuration changes
 
 ### Valid Scopes
-- `cask` - Changes to Casks/jdk26ea.rb
-- `formula` - Changes to Formula/jdk26ea.rb
+- `cask` - Changes to Casks/jdkvalhalla.rb
+- `formula` - Changes to Formula/jdkvalhalla@26.rb or Formula/jdkvalhalla@27.rb
 - `workflow` - GitHub Actions workflows
 - `docs` - Documentation changes
 - `scripts` - Script changes
 
 ### Examples
 ```bash
-feat(cask): add support for JDK 26 EA Build 21
+feat(cask): add support for JDK Valhalla Build 21
 fix(formula): correct SHA256 checksum for Linux ARM64
 ci(workflow): pin action to commit SHA for security
 docs: update README with installation instructions
@@ -744,9 +756,9 @@ docs: update README with installation instructions
 ## Ruby/Homebrew Style
 
 ### Before Committing
-1. Validate syntax: `ruby -c Casks/jdk26ea.rb`
-2. Check style: `brew style Casks/jdk26ea.rb`
-3. Run audit: `brew audit --cask Casks/jdk26ea.rb`
+1. Validate syntax: `ruby -c Casks/jdkvalhalla.rb`
+2. Check style: `brew style Casks/jdkvalhalla.rb`
+3. Run audit: `brew audit --cask Casks/jdkvalhalla.rb`
 
 ### Cask Stanza Ordering
 1. `arch` declaration

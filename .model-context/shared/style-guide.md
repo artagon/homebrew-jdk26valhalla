@@ -1,4 +1,4 @@
-# Code Style Guide for homebrew-jdk26ea
+# Code Style Guide for homebrew-jdkvalhalla
 
 ## Commit Messages
 
@@ -21,15 +21,15 @@ type(scope): description
 - `ci` - CI configuration changes
 
 ### Valid Scopes
-- `cask` - Changes to Casks/jdk26ea.rb
-- `formula` - Changes to Formula/jdk26ea.rb
+- `cask` - Changes to Casks/jdkvalhalla.rb
+- `formula` - Changes to Formula/jdkvalhalla@26.rb or Formula/jdkvalhalla@27.rb
 - `workflow` - GitHub Actions workflows
 - `docs` - Documentation changes
 - `scripts` - Script changes
 
 ### Examples
 ```bash
-feat(cask): add support for JDK 26 EA Build 21
+feat(cask): add support for JDK Valhalla Build 21
 fix(formula): correct SHA256 checksum for Linux ARM64
 ci(workflow): pin action to commit SHA for security
 docs: update README with installation instructions
@@ -38,9 +38,9 @@ docs: update README with installation instructions
 ## Ruby/Homebrew Style
 
 ### Before Committing
-1. Validate syntax: `ruby -c Casks/jdk26ea.rb`
-2. Check style: `brew style Casks/jdk26ea.rb`
-3. Run audit: `brew audit --cask Casks/jdk26ea.rb`
+1. Validate syntax: `ruby -c Casks/jdkvalhalla.rb`
+2. Check style: `brew style Casks/jdkvalhalla.rb`
+3. Run audit: `brew audit --cask Casks/jdkvalhalla.rb`
 
 ### Cask Stanza Ordering
 1. `arch` declaration

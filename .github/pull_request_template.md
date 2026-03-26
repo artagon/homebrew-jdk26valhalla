@@ -6,12 +6,12 @@
 
 <!-- Mark the relevant option with an "x" -->
 
-- [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
-- [ ] ✨ New feature (non-breaking change that adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to change)
-- [ ] 📝 Documentation update
-- [ ] 🔧 Chore (dependency updates, tooling, etc.)
-- [ ] 🚀 JDK version update
+- [ ] Bug fix (non-breaking change that fixes an issue)
+- [ ] New feature (non-breaking change that adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to change)
+- [ ] Documentation update
+- [ ] Chore (dependency updates, tooling, etc.)
+- [ ] JDK version update
 
 ## Related Issue
 
@@ -30,8 +30,9 @@ Fixes #(issue number)
 
 <!-- If this is a JDK version update, complete this checklist -->
 
-- [ ] Updated version in `Casks/jdk26ea.rb`
-- [ ] Updated version in `Formula/jdk26ea.rb`
+- [ ] Updated version in `Casks/jdkvalhalla.rb`
+- [ ] Updated version in `Formula/jdkvalhalla@27.rb`
+- [ ] Updated version in `Formula/jdkvalhalla@26.rb` (if applicable)
 - [ ] Updated URLs for all platforms (macOS ARM64/x64, Linux ARM64/x64)
 - [ ] Updated SHA256 checksums for all platforms
 - [ ] Verified checksums match official release
@@ -44,8 +45,9 @@ Fixes #(issue number)
 
 ### Validation
 
-- [ ] Ruby syntax validation passed (`ruby -c Casks/jdk26ea.rb`)
-- [ ] Ruby syntax validation passed (`ruby -c Formula/jdk26ea.rb`)
+- [ ] Ruby syntax validation passed (`ruby -c Casks/jdkvalhalla.rb`)
+- [ ] Ruby syntax validation passed (`ruby -c Formula/jdkvalhalla@27.rb`)
+- [ ] Ruby syntax validation passed (`ruby -c Formula/jdkvalhalla@26.rb`)
 - [ ] Semantic commit message format verified
 - [ ] CI validation checks pass
 

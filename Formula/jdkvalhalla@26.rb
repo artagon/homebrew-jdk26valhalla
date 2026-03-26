@@ -1,5 +1,5 @@
-class Jdk26valhalla < Formula
-  desc "JDK 26 Project Valhalla - Value Classes and Objects (JEP 401)"
+class JdkvalhallaAT26 < Formula
+  desc "Project Valhalla JDK 26 - Value Classes and Objects (JEP 401)"
   homepage "https://jdk.java.net/valhalla/"
   version "26-jep401ea2+1-1"
   on_macos do
