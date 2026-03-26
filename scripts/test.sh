@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Run local validation for the JDK 26 EA tap.
+# Run local validation for the JDK Valhalla tap.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TAP_USER="artagon"
-TAP_REPO="homebrew-jdk26ea"
+TAP_REPO="homebrew-jdk26valhalla"
 TAP_FULL="${TAP_USER}/${TAP_REPO}"
-FORMULA_NAME="jdk26ea"
-FORMULA_FULL="${TAP_USER}/jdk26ea/${FORMULA_NAME}"
-CASK_FULL="${TAP_USER}/jdk26ea/${FORMULA_NAME}"
+FORMULA_NAME="jdkvalhalla@27"
+FORMULA_FULL="${TAP_USER}/jdk26valhalla/${FORMULA_NAME}"
+CASK_NAME="jdkvalhalla"
+CASK_FULL="${TAP_USER}/jdk26valhalla/${CASK_NAME}"
 
 log() {
   printf '==> %s\n' "$*"
@@ -59,7 +60,7 @@ link_tap_to_repo() {
 
 run_style_and_audit() {
   log "Running brew style checks"
-  brew style "${ROOT}/Casks/${FORMULA_NAME}.rb"
+  brew style "${ROOT}/Casks/${CASK_NAME}.rb"
   brew style "${ROOT}/Formula/${FORMULA_NAME}.rb"
 
   log "Running brew audit for formula ${FORMULA_FULL}"
@@ -92,7 +93,7 @@ test_cask_install() {
   brew install --cask "${CASK_FULL}"
   register_cleanup "brew uninstall --cask ${CASK_FULL} >/dev/null 2>&1 || true"
 
-  local app_path="/Library/Java/JavaVirtualMachines/jdk-26-ea.jdk/Contents/Home/bin/java"
+  local app_path="/Library/Java/JavaVirtualMachines/jdk-valhalla.jdk/Contents/Home/bin/java"
   if [[ -x "$app_path" ]]; then
     log "Cask install verification: printing java version"
     "$app_path" -version

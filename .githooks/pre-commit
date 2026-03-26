@@ -21,9 +21,7 @@ if [ -z "$model_context_files" ]; then
     exit 0
 fi
 
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
 echo -e "${BLUE}Model Context Sync Verification${NC}" >&2
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
 echo "" >&2
 
 echo -e "${YELLOW}AI configuration files detected in commit:${NC}" >&2
@@ -34,7 +32,7 @@ echo "" >&2
 shared_modified=$(echo "$staged_files" | grep -E '^\.model-context/shared/' || true)
 
 if [ -n "$shared_modified" ]; then
-    echo -e "${YELLOW}⚠ Shared context files modified:${NC}" >&2
+    echo -e "${YELLOW}Shared context files modified:${NC}" >&2
     echo "$shared_modified" | sed 's/^/  /' >&2
     echo "" >&2
     echo -e "${YELLOW}Checking if agent files are synced...${NC}" >&2
@@ -45,12 +43,11 @@ fi
 if [ -x ./scripts/verify-model-context-sync.sh ]; then
     if ./scripts/verify-model-context-sync.sh 2>&1; then
         echo "" >&2
-        echo -e "${GREEN}✓ Model context sync verification passed${NC}" >&2
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
+        echo -e "${GREEN}Model context sync verification passed${NC}" >&2
         exit 0
     else
         echo "" >&2
-        echo -e "${RED}✗ Model context sync verification failed${NC}" >&2
+        echo -e "${RED}Model context sync verification failed${NC}" >&2
         echo "" >&2
         echo -e "${YELLOW}Files are out of sync!${NC}" >&2
         echo "" >&2
@@ -61,12 +58,10 @@ if [ -x ./scripts/verify-model-context-sync.sh ]; then
         echo -e "  ${GREEN}git add .claude/ .gemini/ .github/ .cursorrules .agents${NC}" >&2
         echo "" >&2
         echo "And try committing again." >&2
-        echo "" >&2
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
         exit 1
     fi
 else
-    echo -e "${YELLOW}⚠ Warning: verify-model-context-sync.sh not found or not executable${NC}" >&2
+    echo -e "${YELLOW}Warning: verify-model-context-sync.sh not found or not executable${NC}" >&2
     echo "Skipping sync verification" >&2
     exit 0
 fi

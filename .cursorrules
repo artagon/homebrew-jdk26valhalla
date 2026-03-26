@@ -1,0 +1,40 @@
+# Cursor Rules for homebrew-jdkvalhalla
+
+You are working on a Homebrew tap for OpenJDK Project Valhalla Early Access builds (JDK 26 and JDK 27).
+
+## Commit Messages
+Use Conventional Commits: type(scope): description
+Types: feat, fix, docs, style, refactor, perf, test, chore, ci
+Scopes: cask, formula, workflow, docs, scripts
+
+## Ruby/Homebrew
+- Run `brew style` before committing
+- Run `brew audit --cask` for validation
+- Use `ditto` instead of `rsync` in cask scripts
+- Validate all paths with `realpath`
+- Use `system_command!` for error handling
+
+## GitHub Actions Security
+- Pin actions to commit SHAs (not tags/branches)
+- Validate all external inputs
+- Use `gh` CLI instead of curl for API calls
+- Verify checksums of downloads
+- Use minimal permissions
+
+## Testing
+- Validate syntax: `ruby -c Casks/jdkvalhalla.rb`
+- Style check: `brew style Casks/jdkvalhalla.rb`
+- Audit: `brew audit --cask Casks/jdkvalhalla.rb`
+
+## Repository-Specific
+- Current version in Casks/jdkvalhalla.rb, Formula/jdkvalhalla@26.rb, and Formula/jdkvalhalla@27.rb
+- Update cask and relevant formula together
+- Update all 4 platform checksums (macOS ARM64/x64, Linux ARM64/x64)
+- Don't update README manually (auto-updated by release workflow)
+
+## Security First
+- Validate paths don't escape staging
+- Verify SHA256 checksums
+- Bound numeric inputs
+- No tokens in command lines
+- Create PRs instead of direct commits

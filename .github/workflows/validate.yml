@@ -14,24 +14,42 @@ jobs:
     timeout-minutes: 15
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
-
-      - name: Validate cask syntax
-        run: |
-          brew style Casks/jdk26valhalla.rb
-          ruby -c Casks/jdk26valhalla.rb
-
-      - name: Audit cask
-        run: |
-          brew audit --cask artagon/jdk26valhalla/jdk26valhalla
+        uses: Homebrew/actions/setup-homebrew@319e41e9a0514142e0bfaac2e74c43e7e2182790 # v5
 
       - name: Validate formula syntax
         run: |
-          brew style Formula/jdk26valhalla.rb
-          ruby -c Formula/jdk26valhalla.rb
+          for f in Formula/*.rb; do
+            echo "==> Checking $f"
+            brew style "$f"
+            ruby -c "$f"
+          done
+
+      - name: Validate cask syntax
+        run: |
+          for f in Casks/*.rb; do
+            echo "==> Checking $f"
+            brew style "$f"
+            ruby -c "$f"
+          done
+
+      - name: Audit formulas
+        run: |
+          for f in Formula/*.rb; do
+            name="$(basename "$f" .rb)"
+            echo "==> Auditing formula artagon/jdkvalhalla/$name"
+            brew audit --formula "artagon/jdkvalhalla/$name"
+          done
+
+      - name: Audit casks
+        run: |
+          for f in Casks/*.rb; do
+            name="$(basename "$f" .rb)"
+            echo "==> Auditing cask artagon/jdkvalhalla/$name"
+            brew audit --cask "artagon/jdkvalhalla/$name"
+          done
 
   test-install-macos:
     timeout-minutes: 30
@@ -41,37 +59,53 @@ jobs:
         os: [macos-13, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+        uses: Homebrew/actions/setup-homebrew@319e41e9a0514142e0bfaac2e74c43e7e2182790 # v5
 
       - name: Cache Homebrew downloads
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/Library/Caches/Homebrew/downloads
-          key: ${{ runner.os }}-${{ runner.arch }}-homebrew-jdk26valhalla-26-jep401ea2+1-1
+          key: ${{ runner.os }}-${{ runner.arch }}-homebrew-jdkvalhalla-cask-${{ hashFiles('Casks/jdkvalhalla.rb') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-homebrew-jdk26valhalla-
+            ${{ runner.os }}-${{ runner.arch }}-homebrew-jdkvalhalla-cask-
 
       - name: Test cask installation
         run: |
-          brew install --cask artagon/jdk26valhalla/jdk26valhalla
+          brew install --cask artagon/jdkvalhalla/jdkvalhalla
 
-      - name: Verify installation
+      - name: Verify cask installation
         run: |
-          if [ -d "/Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk" ]; then
-            echo "✅ JDK installed successfully"
-            /Library/Java/JavaVirtualMachines/jdk-26-valhalla.jdk/Contents/Home/bin/java -version
+          if [ -d "/Library/Java/JavaVirtualMachines/jdk-valhalla.jdk" ]; then
+            echo "JDK cask installed successfully"
+            /Library/Java/JavaVirtualMachines/jdk-valhalla.jdk/Contents/Home/bin/java -version
           else
-            echo "❌ JDK installation failed"
+            echo "JDK cask installation failed"
+            exit 1
+          fi
+
+      - name: Test formula installation (latest version)
+        run: |
+          brew install artagon/jdkvalhalla/jdkvalhalla@27
+
+      - name: Verify formula installation
+        run: |
+          JDK_PREFIX="$(brew --prefix jdkvalhalla@27)"
+          if [ -d "$JDK_PREFIX" ]; then
+            echo "JDK formula installed successfully at $JDK_PREFIX"
+            "$JDK_PREFIX/bin/java" -version
+          else
+            echo "JDK formula installation failed"
             exit 1
           fi
 
       - name: Cleanup
         if: always()
         run: |
-          brew uninstall --cask artagon/jdk26valhalla/jdk26valhalla || true
+          brew uninstall --cask artagon/jdkvalhalla/jdkvalhalla || true
+          brew uninstall --formula jdkvalhalla@27 || true
 
   test-install-linux:
     timeout-minutes: 30
@@ -85,18 +119,18 @@ jobs:
             arch: x64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+        uses: Homebrew/actions/setup-homebrew@319e41e9a0514142e0bfaac2e74c43e7e2182790 # v5
 
       - name: Cache Homebrew downloads
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/.cache/Homebrew/downloads
-          key: ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdk26valhalla-26-jep401ea2+1-1
+          key: ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdkvalhalla-formula-${{ hashFiles('Formula/jdkvalhalla@27.rb') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdk26valhalla-
+            ${{ runner.os }}-${{ matrix.arch }}-homebrew-jdkvalhalla-formula-
 
       - name: Display system info
         run: |
@@ -106,22 +140,22 @@ jobs:
 
       - name: Test formula installation
         run: |
-          brew install artagon/jdk26valhalla/jdk26valhalla
+          brew install artagon/jdkvalhalla/jdkvalhalla@27
 
       - name: Verify installation
         run: |
-          JDK_PREFIX="$(brew --prefix jdk26valhalla)"
+          JDK_PREFIX="$(brew --prefix jdkvalhalla@27)"
           if [ -d "$JDK_PREFIX" ]; then
-            echo "✅ JDK installed successfully at $JDK_PREFIX"
+            echo "JDK installed successfully at $JDK_PREFIX"
             "$JDK_PREFIX/bin/java" -version
           else
-            echo "❌ JDK installation failed"
+            echo "JDK installation failed"
             exit 1
           fi
 
       - name: Test JAVA_HOME setup
         run: |
-          export JAVA_HOME="$(brew --prefix jdk26valhalla)"
+          export JAVA_HOME="$(brew --prefix jdkvalhalla@27)"
           echo "JAVA_HOME=$JAVA_HOME"
           echo "Testing java compiler and runtime..."
           "$JAVA_HOME/bin/java" -version
@@ -129,18 +163,18 @@ jobs:
 
       - name: Test basic Java functionality
         run: |
-          export JAVA_HOME="$(brew --prefix jdk26valhalla)"
+          export JAVA_HOME="$(brew --prefix jdkvalhalla@27)"
           export PATH="$JAVA_HOME/bin:$PATH"
 
           # Create and compile a test program
-          cat > HelloWorld.java << 'EOF'
+          cat > HelloWorld.java << 'JAVAEOF'
           public class HelloWorld {
               public static void main(String[] args) {
-                  System.out.println("JDK 26 Valhalla is working!");
+                  System.out.println("JDK Valhalla is working!");
                   System.out.println("Java version: " + System.getProperty("java.version"));
               }
           }
-          EOF
+          JAVAEOF
 
           javac HelloWorld.java
           java HelloWorld
@@ -148,7 +182,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          brew uninstall --formula jdk26valhalla || true
+          brew uninstall --formula jdkvalhalla@27 || true
 
   validation-status:
     name: Validation Status
@@ -159,7 +193,7 @@ jobs:
       - test-install-linux
     steps:
       - name: Confirm completion
-        run: echo "✅ All validation jobs completed successfully."
+        run: echo "All validation jobs completed successfully."
 
       - name: Publish Validate status for branch protection
         env:

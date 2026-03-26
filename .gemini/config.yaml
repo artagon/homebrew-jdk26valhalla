@@ -1,0 +1,21 @@
+# Gemini Code Assist Configuration
+# https://developers.google.com/gemini-code-assist/docs/customize-gemini-behavior-github
+
+# Enable automatic code review
+auto_review: true
+
+# Generate review summaries
+review_summary: true
+
+# Comment severity threshold (CRITICAL, HIGH, MEDIUM, LOW)
+comment_severity_threshold: MEDIUM
+
+# Maximum number of review comments
+max_review_comments: 50
+
+# Files/patterns to ignore during review
+ignore:
+  - "*.bak"
+  - "*.tmp"
+  - ".git/**"
+  - "scripts/test.sh"

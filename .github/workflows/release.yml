@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Casks/jdk26valhalla.rb'
-      - 'Formula/jdk26valhalla.rb'
+      - 'Casks/*.rb'
+      - 'Formula/*.rb'
 
 permissions:
   contents: write
@@ -18,30 +18,30 @@ jobs:
       name: release-approval
       url: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0  # Fetch all history for changelog
 
       - name: Set up Homebrew
         if: runner.os == 'Linux'
-        uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+        uses: Homebrew/actions/setup-homebrew@319e41e9a0514142e0bfaac2e74c43e7e2182790 # v5
 
       - name: Audit cask
         run: |
-          brew untap artagon/jdk26valhalla || true
-          brew tap --custom-remote artagon/jdk26valhalla "$GITHUB_WORKSPACE"
-          brew audit --cask artagon/jdk26valhalla/jdk26valhalla
+          brew untap artagon/jdkvalhalla || true
+          brew tap --custom-remote artagon/jdkvalhalla "$GITHUB_WORKSPACE"
+          brew audit --cask artagon/jdkvalhalla/jdkvalhalla
 
       - name: Extract version from cask
         id: version
         run: |
           set -euo pipefail
-          VERSION=$(grep -oP 'version "\K[^"]+' Casks/jdk26valhalla.rb)
+          VERSION=$(grep -oP 'version "\K[^"]+' Casks/jdkvalhalla.rb)
           if [[ -z "$VERSION" ]]; then
-            echo "Failed to extract version from Casks/jdk26valhalla.rb"
+            echo "Failed to extract version from Casks/jdkvalhalla.rb"
             exit 1
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
           # Extract build number for changelog
           BUILD=$(echo "$VERSION" | grep -oP '\+\K\d+')
@@ -49,15 +49,15 @@ jobs:
             echo "Failed to extract build number from version $VERSION"
             exit 1
           fi
-          echo "build=$BUILD" >> $GITHUB_OUTPUT
+          echo "build=$BUILD" >> "$GITHUB_OUTPUT"
 
       - name: Check if tag exists
         id: check_tag
         run: |
           if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Get previous version
@@ -65,13 +65,13 @@ jobs:
         id: prev_version
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "tag=$PREV_TAG" >> "$GITHUB_OUTPUT"
 
           if [ -n "$PREV_TAG" ]; then
             PREV_VERSION=$(echo "$PREV_TAG" | sed 's/^v//')
-            echo "version=$PREV_VERSION" >> $GITHUB_OUTPUT
+            echo "version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
           else
-            echo "version=none" >> $GITHUB_OUTPUT
+            echo "version=none" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Generate changelog
@@ -91,7 +91,7 @@ jobs:
             echo 'changelog<<EOF'
             echo "$CHANGELOG"
             echo 'EOF'
-          } >> $GITHUB_OUTPUT
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update README with current version
         if: steps.check_tag.outputs.exists == 'false'
@@ -112,7 +112,7 @@ jobs:
           readme_path = pathlib.Path("README.md")
 
           try:
-              with urllib.request.urlopen("https://jdk.java.net/26/", timeout=30) as response:
+              with urllib.request.urlopen("https://jdk.java.net/valhalla/", timeout=30) as response:
                   page = response.read().decode("utf-8", "replace")
           except Exception as exc:
               print(f"Failed to fetch release page: {exc}", file=sys.stderr)
@@ -126,8 +126,8 @@ jobs:
               release_date = datetime.date.today().isoformat()
 
           text = readme_path.read_text()
-          pattern = r"\*\*JDK 26 EA Build \d+\*\* \(Released: [0-9-]*\)"
-          replacement = f"**JDK 26 EA Build {build}** (Released: {release_date})"
+          pattern = r"\*\*JDK Valhalla Build [^\*]+\*\* \(Released: [0-9-]*\)"
+          replacement = f"**JDK Valhalla Build {build}** (Released: {release_date})"
           new_text, count = re.subn(pattern, replacement, text, count=1)
           if count != 1:
               print("Failed to update README version banner", file=sys.stderr)
@@ -144,13 +144,13 @@ jobs:
 
       - name: Create README update pull request
         if: steps.check_tag.outputs.exists == 'false' && steps.update_readme.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: update README to JDK 26 EA Build ${{ steps.version.outputs.build }}"
-          title: "docs: update README to JDK 26 EA Build ${{ steps.version.outputs.build }}"
+          commit-message: "docs: update README to Valhalla Build ${{ steps.version.outputs.build }}"
+          title: "docs: update README to Valhalla Build ${{ steps.version.outputs.build }}"
           body: |
-            This PR updates README.md to reflect JDK 26 EA Build ${{ steps.version.outputs.build }} (released ${{ steps.update_readme.outputs.release_date }}).
+            This PR updates README.md to reflect Valhalla Build ${{ steps.version.outputs.build }} (released ${{ steps.update_readme.outputs.release_date }}).
           branch: release/readme-${{ steps.version.outputs.build }}
           delete-branch: true
 
@@ -158,12 +158,8 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         id: jdk_notes
         run: |
-          BUILD="${{ steps.version.outputs.build }}"
-
-          # Try to fetch release notes (if available)
-          NOTES_URL="https://jdk.java.net/26/"
-
-          echo "notes_url=$NOTES_URL" >> $GITHUB_OUTPUT
+          NOTES_URL="https://jdk.java.net/valhalla/"
+          echo "notes_url=$NOTES_URL" >> "$GITHUB_OUTPUT"
 
       - name: Verify GPG signatures (if available)
         if: steps.check_tag.outputs.exists == 'false'
@@ -178,9 +174,9 @@ jobs:
           # This is a placeholder for when they become available
           # For now, we rely on SHA256 checksums embedded in the formula/cask
 
-          echo "⚠️  GPG signatures not available for OpenJDK EA builds"
-          echo "✅ Using SHA256 checksum verification via Homebrew"
-          echo "verified=checksum_only" >> $GITHUB_OUTPUT
+          echo "GPG signatures not available for OpenJDK EA builds"
+          echo "Using SHA256 checksum verification via Homebrew"
+          echo "verified=checksum_only" >> "$GITHUB_OUTPUT"
 
       - name: Generate SBOM
         if: steps.check_tag.outputs.exists == 'false'
@@ -198,22 +194,22 @@ jobs:
             "spdxVersion": "SPDX-2.3",
             "dataLicense": "CC0-1.0",
             "SPDXID": "SPDXRef-DOCUMENT",
-            "name": "JDK 26 Valhalla EA Build ${BUILD}",
+            "name": "Valhalla Build ${BUILD}",
             "documentNamespace": "https://github.com/${{ github.repository }}/releases/tag/v${VERSION}",
             "creationInfo": {
               "created": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
               "creators": [
-                "Tool: Artagon/homebrew-jdk26valhalla",
+                "Tool: Artagon/homebrew-jdkvalhalla",
                 "Organization: Artagon"
               ]
             },
             "packages": [
               {
                 "SPDXID": "SPDXRef-Package",
-                "name": "OpenJDK-26-Valhalla",
+                "name": "OpenJDK-Valhalla",
                 "versionInfo": "${VERSION}",
                 "supplier": "Organization: OpenJDK",
-                "downloadLocation": "https://jdk.java.net/26/",
+                "downloadLocation": "https://jdk.java.net/valhalla/",
                 "filesAnalyzed": false,
                 "licenseConcluded": "GPL-2.0-only WITH Classpath-exception-2.0",
                 "licenseDeclared": "GPL-2.0-only WITH Classpath-exception-2.0",
@@ -237,30 +233,30 @@ jobs:
           }
           EOF
 
-          echo "sbom_file=$SBOM_FILE" >> $GITHUB_OUTPUT
-          echo "✅ Generated SBOM: $SBOM_FILE"
+          echo "sbom_file=$SBOM_FILE" >> "$GITHUB_OUTPUT"
+          echo "Generated SBOM: $SBOM_FILE"
 
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        uses: softprops/action-gh-release@c062e08bd532815e2082a7c09928ea14e189f382 # v2.2.1
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          name: JDK 26 EA Build ${{ steps.version.outputs.build }}
+          name: Valhalla Build ${{ steps.version.outputs.version }}
           files: ${{ steps.sbom.outputs.sbom_file }}
           body: |
-            # JDK 26 Early Access Build ${{ steps.version.outputs.build }}
+            # Valhalla Build ${{ steps.version.outputs.version }}
 
-            OpenJDK 26 Early Access build from [jdk.java.net/26](${{ steps.jdk_notes.outputs.notes_url }})
+            Project Valhalla early-access build from [jdk.java.net/valhalla](${{ steps.jdk_notes.outputs.notes_url }})
 
             ## Installation
 
             ### macOS & Linux
 
             ```bash
-            brew tap Artagon/jdk26valhalla
-            brew install --cask jdk26valhalla  # macOS only
+            brew tap Artagon/jdkvalhalla
+            brew install --cask jdkvalhalla   # macOS only (latest)
             # or
-            brew install jdk26valhalla  # macOS & Linux
+            brew install jdkvalhalla@27       # macOS & Linux
             ```
 
             ## Supported Platforms
@@ -282,8 +278,8 @@ jobs:
 
             ## Links
 
-            - [OpenJDK JDK 26 EA Downloads](https://jdk.java.net/26/)
-            - [OpenJDK Project](https://openjdk.org/)
+            - [Project Valhalla Downloads](https://jdk.java.net/valhalla/)
+            - [OpenJDK Project Valhalla](https://openjdk.org/projects/valhalla/)
 
             ---
 

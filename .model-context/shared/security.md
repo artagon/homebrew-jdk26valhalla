@@ -1,4 +1,4 @@
-# Security Guidelines for homebrew-jdk26ea
+# Security Guidelines for homebrew-jdkvalhalla
 
 ## 1. GitHub Actions Security
 

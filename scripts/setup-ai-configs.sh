@@ -43,7 +43,7 @@ ignore:
 EOF
 
 cat > .gemini/styleguide.md << 'EOF'
-# Gemini Code Assist Style Guide for homebrew-jdk26ea
+# Gemini Code Assist Style Guide for homebrew-jdkvalhalla
 
 ## General Principles
 1. Security first - validate all inputs, verify checksums
@@ -103,7 +103,7 @@ type(scope): description
 
 ### Examples
 ```
-feat(cask): add support for JDK 26 EA Build 21
+feat(cask): add support for JDK Valhalla Build 21
 fix(formula): correct SHA256 checksum for Linux ARM64
 ci(workflow): pin actions to commit SHAs for security
 docs: update README with installation instructions
@@ -112,9 +112,9 @@ docs: update README with installation instructions
 ## Testing Requirements
 
 ### Before Committing
-- Validate Ruby syntax: `ruby -c Casks/jdk26ea.rb`
-- Run style checks: `brew style Casks/jdk26ea.rb`
-- Run audit: `brew audit --cask Casks/jdk26ea.rb`
+- Validate Ruby syntax: `ruby -c Casks/jdkvalhalla.rb`
+- Run style checks: `brew style Casks/jdkvalhalla.rb`
+- Run audit: `brew audit --cask Casks/jdkvalhalla.rb`
 
 ### CI Expectations
 - All tests must pass on macOS 13, macOS 14
@@ -165,10 +165,10 @@ echo "Setting up GitHub Copilot..."
 mkdir -p .github
 
 cat > .github/copilot-instructions.md << 'EOF'
-# GitHub Copilot Instructions for homebrew-jdk26ea
+# GitHub Copilot Instructions for homebrew-jdkvalhalla
 
 ## Repository Overview
-This is a Homebrew tap for OpenJDK 26 Early Access builds with automated updates and releases.
+This is a Homebrew tap for OpenJDK Project Valhalla Early Access builds (JDK 26 and JDK 27) with automated updates and releases.
 
 ## Commit Message Requirements
 **CRITICAL:** All commits MUST follow Conventional Commits format.
@@ -179,16 +179,16 @@ Valid types: feat, fix, docs, style, refactor, perf, test, chore, ci
 Valid scopes: cask, formula, workflow, docs, scripts
 
 Examples:
-- `feat(cask): add support for JDK 26 EA Build 21`
+- `feat(cask): add support for JDK 27 Valhalla build`
 - `fix(formula): correct SHA256 checksum for Linux ARM64`
 - `ci(workflow): pin actions to commit SHAs`
 
 ## Ruby/Homebrew Guidelines
 
 ### Before Committing
-1. Run `ruby -c Casks/jdk26ea.rb` to validate syntax
-2. Run `brew style Casks/jdk26ea.rb` to check style
-3. Run `brew audit --cask Casks/jdk26ea.rb` to audit
+1. Run `ruby -c Casks/jdkvalhalla.rb` to validate syntax
+2. Run `brew style Casks/jdkvalhalla.rb` to check style
+3. Run `brew audit --cask Casks/jdkvalhalla.rb` to audit
 
 ### Cask Security Rules
 - Use `realpath` to resolve all paths
@@ -203,10 +203,10 @@ Examples:
 ### Action Pinning (CRITICAL)
 Pin ALL third-party actions to commit SHAs:
 ```yaml
-# ✅ Correct
+# Correct
 - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
 
-# ❌ Wrong
+# Wrong
 - uses: actions/checkout@v4
 - uses: Homebrew/actions/setup-homebrew@master
 ```
@@ -228,8 +228,8 @@ Pin ALL third-party actions to commit SHAs:
 - Fail workflow if verification fails
 
 ## File Naming Conventions
-- Cask file: `Casks/jdk26ea.rb`
-- Formula file: `Formula/jdk26ea.rb`
+- Cask file: `Casks/jdkvalhalla.rb`
+- Formula files: `Formula/jdkvalhalla@26.rb`, `Formula/jdkvalhalla@27.rb`
 - Workflows: `.github/workflows/*.yml`
 - Scripts: `scripts/*.sh`
 
@@ -242,10 +242,10 @@ Pin ALL third-party actions to commit SHAs:
 ## Common Patterns
 
 ### Update Version
-1. Update version in both Casks/jdk26ea.rb and Formula/jdk26ea.rb
+1. Update version in both Casks/jdkvalhalla.rb and Formula/jdkvalhalla@27.rb
 2. Update SHA256 for all 4 platforms (macOS ARM64/x64, Linux ARM64/x64)
 3. Validate syntax
-4. Commit: `feat: update to JDK 26 EA Build XX`
+4. Commit: `feat: update to JDK Valhalla Build XX`
 
 ### Fix Security Issue
 1. Identify vulnerability
@@ -254,13 +254,13 @@ Pin ALL third-party actions to commit SHAs:
 4. Commit: `fix(workflow): pin action to commit SHA for security`
 
 ## What NOT to Do
-- ❌ Don't commit without semantic format
-- ❌ Don't skip `brew style` validation
-- ❌ Don't use rsync in cask (use ditto)
-- ❌ Don't hardcode paths without validation
-- ❌ Don't bypass git hooks with --no-verify
-- ❌ Don't use unpinned GitHub Actions
-- ❌ Don't commit directly to main (use PRs)
+- Don't commit without semantic format
+- Don't skip `brew style` validation
+- Don't use rsync in cask (use ditto)
+- Don't hardcode paths without validation
+- Don't bypass git hooks with --no-verify
+- Don't use unpinned GitHub Actions
+- Don't commit directly to main (use PRs)
 EOF
 
 echo "✓ GitHub Copilot configured"
@@ -271,9 +271,9 @@ echo ""
 echo "Setting up Cursor..."
 
 cat > .cursorrules << 'EOF'
-# Cursor Rules for homebrew-jdk26ea
+# Cursor Rules for homebrew-jdkvalhalla
 
-You are working on a Homebrew tap for OpenJDK 26 Early Access builds.
+You are working on a Homebrew tap for OpenJDK Project Valhalla Early Access builds (JDK 26 and JDK 27).
 
 ## Commit Messages
 Use Conventional Commits: type(scope): description
@@ -295,13 +295,13 @@ Scopes: cask, formula, workflow, docs, scripts
 - Use minimal permissions
 
 ## Testing
-- Validate syntax: `ruby -c Casks/jdk26ea.rb`
-- Style check: `brew style Casks/jdk26ea.rb`
-- Audit: `brew audit --cask Casks/jdk26ea.rb`
+- Validate syntax: `ruby -c Casks/jdkvalhalla.rb`
+- Style check: `brew style Casks/jdkvalhalla.rb`
+- Audit: `brew audit --cask Casks/jdkvalhalla.rb`
 
 ## Repository-Specific
-- Current version in Casks/jdk26ea.rb and Formula/jdk26ea.rb
-- Update both files together
+- Current version in Casks/jdkvalhalla.rb, Formula/jdkvalhalla@26.rb, and Formula/jdkvalhalla@27.rb
+- Update cask and relevant formula together
 - Update all 4 platform checksums (macOS ARM64/x64, Linux ARM64/x64)
 - Don't update README manually (auto-updated by release workflow)
 

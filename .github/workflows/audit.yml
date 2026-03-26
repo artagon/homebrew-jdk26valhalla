@@ -9,13 +9,39 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Homebrew
-        if: runner.os == 'Linux'
-        uses: Homebrew/actions/setup-homebrew@c39f0335940fb3214046dce5a5d2f94ed275ab4b
+        uses: Homebrew/actions/setup-homebrew@319e41e9a0514142e0bfaac2e74c43e7e2182790 # v5
 
-      - name: Audit cask
+      - name: Validate formula syntax
         run: |
-          brew style Casks/jdk26valhalla.rb || true
-          ruby -c Casks/jdk26valhalla.rb
+          for f in Formula/*.rb; do
+            echo "==> Checking $f"
+            brew style "$f"
+            ruby -c "$f"
+          done
+
+      - name: Validate cask syntax
+        run: |
+          for f in Casks/*.rb; do
+            echo "==> Checking $f"
+            brew style "$f"
+            ruby -c "$f"
+          done
+
+      - name: Audit formulas
+        run: |
+          for f in Formula/*.rb; do
+            name="$(basename "$f" .rb)"
+            echo "==> Auditing formula artagon/jdkvalhalla/$name"
+            brew audit --formula "artagon/jdkvalhalla/$name"
+          done
+
+      - name: Audit casks
+        run: |
+          for f in Casks/*.rb; do
+            name="$(basename "$f" .rb)"
+            echo "==> Auditing cask artagon/jdkvalhalla/$name"
+            brew audit --cask "artagon/jdkvalhalla/$name"
+          done
