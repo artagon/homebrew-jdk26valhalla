@@ -100,6 +100,20 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@b2a302b9a642580cae998e6ba2076ffd28e61317 # v5
 
+      - name: Free disk space
+        run: |
+          echo "=== Before cleanup ==="
+          df -h /
+          # Remove Homebrew cache and unused formulae
+          brew cleanup --prune=all -s 2>/dev/null || true
+          rm -rf "$(brew --cache)" 2>/dev/null || true
+          # Remove large preinstalled tools not needed for JDK test
+          sudo rm -rf /usr/local/share/dotnet 2>/dev/null || true
+          sudo rm -rf /usr/local/lib/android 2>/dev/null || true
+          sudo rm -rf /opt/hostedtoolcache 2>/dev/null || true
+          echo "=== After cleanup ==="
+          df -h /
+
       - name: Test formula installation
         env:
           HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
