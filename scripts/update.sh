@@ -226,7 +226,8 @@ sed -i.tmp "s/version \".*\"/version \"$cask_version\"/" "$CASK"
 # (e.g. the arch arm: ..., intel: ... declaration line).
 awk -v arm="$mac_arm_sha" -v intel="$mac_x64_sha" '
     /^\s*sha256 arm:/ {
-        getline
+        ret = getline
+        if (ret <= 0) { print "Error: unexpected EOF after sha256 arm: line" > "/dev/stderr"; exit 1 }
         print "  sha256 arm:   \"" arm "\","
         print "         intel: \"" intel "\""
         next
