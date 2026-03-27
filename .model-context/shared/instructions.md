@@ -40,8 +40,9 @@ ci(workflow): pin action to commit SHA for security
 ### File Structure
 ```
 homebrew-jdkvalhalla/
-├── Casks/jdkvalhalla.rb           # macOS cask
-├── Formula/jdkvalhalla.rb         # Linux/macOS formula
+├── Casks/jdkvalhalla.rb           # macOS cask (tracks latest)
+├── Formula/jdkvalhalla@26.rb      # JDK 26 Valhalla formula
+├── Formula/jdkvalhalla@27.rb      # JDK 27 Valhalla formula
 ├── .github/workflows/         # CI/CD automation
 ├── scripts/                   # Update and sync scripts
 └── .model-context/            # AI configuration
@@ -54,7 +55,7 @@ homebrew-jdkvalhalla/
 
 When updating to a new JDK build:
 
-1. **Update version** in both Casks/jdkvalhalla.rb and Formula/jdkvalhalla.rb
+1. **Update version** in Casks/jdkvalhalla.rb and the relevant Formula (Formula/jdkvalhalla@26.rb or Formula/jdkvalhalla@27.rb)
 2. **Download and verify checksums** for all 4 platforms
 3. **Validate changes** with brew style and brew audit
 4. **Commit** with semantic message: `feat: update to Valhalla Build XX`
@@ -79,14 +80,16 @@ When updating to a new JDK build:
 ```bash
 # Syntax validation
 ruby -c Casks/jdkvalhalla.rb
-ruby -c Formula/jdkvalhalla.rb
+ruby -c Formula/jdkvalhalla@26.rb
+ruby -c Formula/jdkvalhalla@27.rb
 
 # Style checking
-brew style Casks/jdkvalhalla.rb Formula/jdkvalhalla.rb
+brew style Casks/jdkvalhalla.rb Formula/jdkvalhalla@26.rb Formula/jdkvalhalla@27.rb
 
 # Audit
 brew audit --cask Casks/jdkvalhalla.rb
-brew audit --formula Formula/jdkvalhalla.rb
+brew audit --formula Formula/jdkvalhalla@26.rb
+brew audit --formula Formula/jdkvalhalla@27.rb
 ```
 
 **CI Testing:**

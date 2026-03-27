@@ -33,6 +33,7 @@ class JdkvalhallaAT26 < Formula
       }
     JAVA
     system "#{bin}/javac", "--enable-preview", "--release", "26", "Hello.java"
-    assert_match(/26|26-jep401ea2/, shell_output("#{bin}/java --enable-preview Hello"))
+    assert_equal "hi\n", shell_output("#{bin}/java --enable-preview Hello")
+    assert_match(/26/, shell_output("#{bin}/java --version 2>&1"))
   end
 end

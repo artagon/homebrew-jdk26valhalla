@@ -263,7 +263,7 @@ jobs:
               if n != 1:
                   raise SystemExit("Failed to update a formula checksum")
 
-          # Update the test block's --release version and version match pattern
+          # Update the test block
           formula_text = re.sub(
               r'--release", "\d+"',
               f'--release", "{jdk_version}"',
@@ -271,8 +271,8 @@ jobs:
               count=1,
           )
           formula_text = re.sub(
-              r'assert_match\(/[^/]+/',
-              f'assert_match(/{jdk_version}|{jdk_version}-{ea_tag}/',
+              r'assert_equal "hi\\n", shell_output\("#{bin}/java --enable-preview Hello"\)\n\s*assert_match\(/\d+/, shell_output\("#{bin}/java --version 2>&1"\)\)',
+              f'assert_equal "hi\\n", shell_output("#{{bin}}/java --enable-preview Hello")\n    assert_match(/{jdk_version}/, shell_output("#{{bin}}/java --version 2>&1"))',
               formula_text,
               count=1,
           )
@@ -305,6 +305,13 @@ jobs:
           )
           if n != 1:
               raise SystemExit("Failed to update cask checksums")
+
+          # Update URL major version directory
+          cask_text = re.sub(
+              r'(https://download\.java\.net/java/early_access/valhalla/)\d+/',
+              rf'\g<1>{jdk_version}/',
+              cask_text,
+          )
 
           cask_path.write_text(cask_text)
           print(f"Updated {cask_path}")

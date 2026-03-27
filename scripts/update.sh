@@ -225,9 +225,10 @@ awk -v arm="$mac_arm_sha" -v intel="$mac_x64_sha" '
     /sha256 arm:/ {
         print "  sha256 arm:   \"" arm "\","
         print "         intel: \"" intel "\""
+        in_sha=1
         next
     }
-    /intel:/ && !/sha256/ { next }
+    in_sha && /^\s*intel:/ { in_sha=0; next }
     { print }
 ' "$CASK" > "${CASK}.new" && mv "${CASK}.new" "$CASK"
 

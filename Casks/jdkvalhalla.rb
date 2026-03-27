@@ -13,8 +13,6 @@ cask "jdkvalhalla" do
   homepage "https://jdk.java.net/valhalla/"
 
   postflight do
-    require "pathname"
-
     staged_root = staged_path.realpath
     candidates = Dir["#{staged_root}/jdk-*.jdk"]
     odie "Expected exactly one JDK bundle in #{staged_root}, found #{candidates.length}" if candidates.length != 1

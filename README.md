@@ -1,4 +1,4 @@
-# homebrew-jdkvalhalla
+# homebrew-jdk26valhalla
 
 Homebrew tap for JDK Project Valhalla early-access builds with automated updates, CI/CD, and support for both macOS and Linux. Currently provides JDK 26 and JDK 27 Valhalla builds.
 
