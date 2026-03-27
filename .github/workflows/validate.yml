@@ -88,9 +88,11 @@ jobs:
             exit 1
           fi
 
-      - name: Uninstall cask before formula test
+      - name: Uninstall cask and free disk space before formula test
         run: |
           brew uninstall --cask artagon/jdk26valhalla/jdkvalhalla || true
+          brew cleanup --prune=all -s 2>/dev/null || true
+          rm -rf "$(brew --cache)" 2>/dev/null || true
 
       - name: Test formula installation (latest version)
         env:
