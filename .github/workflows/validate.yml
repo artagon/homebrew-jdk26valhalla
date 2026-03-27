@@ -73,6 +73,8 @@ jobs:
             ${{ runner.os }}-${{ runner.arch }}-homebrew-jdkvalhalla-cask-
 
       - name: Test cask installation
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
           brew install --cask artagon/jdk26valhalla/jdkvalhalla
 
@@ -87,6 +89,8 @@ jobs:
           fi
 
       - name: Test formula installation (latest version)
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
           brew install artagon/jdk26valhalla/jdkvalhalla@27
 
@@ -139,6 +143,8 @@ jobs:
           echo "Distribution: $(cat /etc/os-release | grep PRETTY_NAME)"
 
       - name: Test formula installation
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
           brew install artagon/jdk26valhalla/jdkvalhalla@27
 
