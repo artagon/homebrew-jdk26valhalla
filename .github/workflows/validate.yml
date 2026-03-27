@@ -39,16 +39,16 @@ jobs:
         run: |
           for f in Formula/*.rb; do
             name="$(basename "$f" .rb)"
-            echo "==> Auditing formula artagon/jdkvalhalla/$name"
-            brew audit --formula "artagon/jdkvalhalla/$name"
+            echo "==> Auditing formula artagon/jdk26valhalla/$name"
+            brew audit --formula "artagon/jdk26valhalla/$name"
           done
 
       - name: Audit casks
         run: |
           for f in Casks/*.rb; do
             name="$(basename "$f" .rb)"
-            echo "==> Auditing cask artagon/jdkvalhalla/$name"
-            brew audit --cask "artagon/jdkvalhalla/$name"
+            echo "==> Auditing cask artagon/jdk26valhalla/$name"
+            brew audit --cask "artagon/jdk26valhalla/$name"
           done
 
   test-install-macos:
@@ -74,7 +74,7 @@ jobs:
 
       - name: Test cask installation
         run: |
-          brew install --cask artagon/jdkvalhalla/jdkvalhalla
+          brew install --cask artagon/jdk26valhalla/jdkvalhalla
 
       - name: Verify cask installation
         run: |
@@ -88,7 +88,7 @@ jobs:
 
       - name: Test formula installation (latest version)
         run: |
-          brew install artagon/jdkvalhalla/jdkvalhalla@27
+          brew install artagon/jdk26valhalla/jdkvalhalla@27
 
       - name: Verify formula installation
         run: |
@@ -104,7 +104,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          brew uninstall --cask artagon/jdkvalhalla/jdkvalhalla || true
+          brew uninstall --cask artagon/jdk26valhalla/jdkvalhalla || true
           brew uninstall --formula jdkvalhalla@27 || true
 
   test-install-linux:
@@ -140,7 +140,7 @@ jobs:
 
       - name: Test formula installation
         run: |
-          brew install artagon/jdkvalhalla/jdkvalhalla@27
+          brew install artagon/jdk26valhalla/jdkvalhalla@27
 
       - name: Verify installation
         run: |

@@ -1,3 +1,6 @@
+<!-- AUTO-GENERATED from .model-context/
+     DO NOT EDIT DIRECTLY - Edit .model-context/shared/ instead -->
+
 # GitHub Copilot Instructions for homebrew-jdkvalhalla
 
 ## Repository Overview

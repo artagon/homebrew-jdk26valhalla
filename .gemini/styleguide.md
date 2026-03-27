@@ -1,3 +1,6 @@
+<!-- AUTO-GENERATED from .model-context/
+     DO NOT EDIT DIRECTLY - Edit .model-context/shared/ instead -->
+
 # Gemini Code Assist Style Guide for homebrew-jdkvalhalla
 
 ## General Principles

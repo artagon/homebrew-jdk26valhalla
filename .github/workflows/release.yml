@@ -28,9 +28,9 @@ jobs:
 
       - name: Audit cask
         run: |
-          brew untap artagon/jdkvalhalla || true
-          brew tap --custom-remote artagon/jdkvalhalla "$GITHUB_WORKSPACE"
-          brew audit --cask artagon/jdkvalhalla/jdkvalhalla
+          brew untap artagon/jdk26valhalla || true
+          brew tap --custom-remote artagon/jdk26valhalla "$GITHUB_WORKSPACE"
+          brew audit --cask artagon/jdk26valhalla/jdkvalhalla
 
       - name: Extract version from cask
         id: version
