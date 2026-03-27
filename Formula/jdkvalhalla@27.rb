@@ -22,7 +22,8 @@ class JdkvalhallaAT27 < Formula
   end
   def install
     if OS.mac?
-      libexec.install Dir["Contents/Home/*"]
+      jdk_home = Dir["jdk-*.jdk/Contents/Home"].first
+      libexec.install Dir["#{jdk_home}/*"]
     else
       libexec.install Dir["*"]
     end
