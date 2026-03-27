@@ -95,7 +95,19 @@ jobs:
           JDK_PREFIX="$(brew --prefix jdkvalhalla@27)"
           if [ -d "$JDK_PREFIX" ]; then
             echo "JDK formula installed successfully at $JDK_PREFIX"
-            "$JDK_PREFIX/bin/java" -version
+            # bin symlinks may be in bin/ or libexec/bin/ depending on platform
+            if [ -x "$JDK_PREFIX/bin/java" ]; then
+              "$JDK_PREFIX/bin/java" -version
+            elif [ -x "$JDK_PREFIX/libexec/bin/java" ]; then
+              "$JDK_PREFIX/libexec/bin/java" -version
+            else
+              echo "Contents of $JDK_PREFIX:"
+              ls -la "$JDK_PREFIX/"
+              ls -la "$JDK_PREFIX/bin/" 2>/dev/null || echo "No bin/ directory"
+              ls -la "$JDK_PREFIX/libexec/" 2>/dev/null | head -5
+              echo "JDK binary not found at expected paths"
+              exit 1
+            fi
           else
             echo "JDK formula installation failed"
             exit 1
