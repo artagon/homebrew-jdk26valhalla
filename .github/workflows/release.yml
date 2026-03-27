@@ -253,7 +253,7 @@ jobs:
             ### macOS & Linux
 
             ```bash
-            brew tap Artagon/jdkvalhalla
+            brew tap Artagon/jdk26valhalla
             brew install --cask jdkvalhalla   # macOS only (latest)
             # or
             brew install jdkvalhalla@27       # macOS & Linux
