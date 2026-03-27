@@ -100,27 +100,24 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@b2a302b9a642580cae998e6ba2076ffd28e61317 # v5
 
-      - name: Free disk space
-        run: |
-          echo "=== Before cleanup ==="
-          df -h /
-          # Remove Homebrew cache and unused formulae
-          brew cleanup --prune=all -s 2>/dev/null || true
-          rm -rf "$(brew --cache)" 2>/dev/null || true
-          # Remove large preinstalled tools not needed for JDK test
-          sudo rm -rf /usr/local/share/dotnet 2>/dev/null || true
-          sudo rm -rf /usr/local/lib/android 2>/dev/null || true
-          sudo rm -rf /opt/hostedtoolcache 2>/dev/null || true
-          echo "=== After cleanup ==="
-          df -h /
-
-      - name: Test formula installation
+      - name: Diagnose disk and install formula
         env:
           HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
           HOMEBREW_NO_AUTO_UPDATE: 1
           HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: |
+          echo "=== Disk usage ==="
+          df -h
+          echo "=== Homebrew prefix ==="
+          brew --prefix
+          brew --cellar
+          echo "=== Cellar disk ==="
+          df -h "$(brew --cellar)"
           sudo chmod -R o+r /Applications/ 2>/dev/null || true
+          # Fetch first, then install to separate download from install
+          brew fetch --formula artagon/jdk26valhalla/jdkvalhalla@27
+          echo "=== After fetch ==="
+          df -h "$(brew --cellar)"
           brew install artagon/jdk26valhalla/jdkvalhalla@27
 
       - name: Verify formula installation
