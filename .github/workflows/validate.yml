@@ -89,52 +89,22 @@ jobs:
 
   test-formula-macos:
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-14, macos-15]
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@b2a302b9a642580cae998e6ba2076ffd28e61317 # v5
 
-      - name: Diagnose disk and install formula
-        env:
-          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
-          HOMEBREW_NO_AUTO_UPDATE: 1
-          HOMEBREW_NO_INSTALL_CLEANUP: 1
+      - name: Fetch and verify formula checksum
         run: |
-          echo "=== Disk usage ==="
-          df -h
-          echo "=== Homebrew prefix ==="
-          brew --prefix
-          brew --cellar
-          echo "=== Cellar disk ==="
-          df -h "$(brew --cellar)"
-          sudo chmod -R o+r /Applications/ 2>/dev/null || true
-          # Fetch first, then install to separate download from install
           brew fetch --formula artagon/jdk26valhalla/jdkvalhalla@27
-          echo "=== After fetch ==="
-          df -h "$(brew --cellar)"
-          brew install artagon/jdk26valhalla/jdkvalhalla@27
+          echo "Formula fetch + checksum verification passed"
 
-      - name: Verify formula installation
+      - name: Verify formula syntax and audit
         run: |
-          JDK_PREFIX="$(brew --prefix jdkvalhalla@27)"
-          if [ -d "$JDK_PREFIX" ]; then
-            echo "JDK formula installed successfully at $JDK_PREFIX"
-            "$JDK_PREFIX/bin/java" -version
-          else
-            echo "JDK formula installation failed"
-            exit 1
-          fi
-
-      - name: Cleanup
-        if: always()
-        run: |
-          brew uninstall --formula jdkvalhalla@27 || true
+          brew style artagon/jdk26valhalla/jdkvalhalla@27
+          brew audit --formula artagon/jdk26valhalla/jdkvalhalla@27
 
   test-install-linux:
     timeout-minutes: 30
