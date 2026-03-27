@@ -47,6 +47,10 @@ cat > .gemini/styleguide.md << 'EOF'
      DO NOT EDIT DIRECTLY - Edit .model-context/shared/ instead
      Last synced: 2025-10-25 10:34:16 UTC
      Agent: GitHub Copilot -->
+<!-- AUTO-GENERATED from .model-context/
+     DO NOT EDIT DIRECTLY - Edit .model-context/shared/ instead
+     Last synced: 2025-10-25 10:34:16 UTC
+     Agent: GitHub Copilot -->
 # Gemini Code Assist Style Guide for homebrew-jdkvalhalla
 
 ## General Principles
