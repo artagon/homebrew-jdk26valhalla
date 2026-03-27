@@ -24,7 +24,7 @@ jobs:
 
       - name: Set up Homebrew
         if: runner.os == 'Linux'
-        uses: Homebrew/actions/setup-homebrew@319e41e9a0514142e0bfaac2e74c43e7e2182790 # v5
+        uses: Homebrew/actions/setup-homebrew@b2a302b9a642580cae998e6ba2076ffd28e61317 # v5
 
       - name: Audit cask
         run: |
@@ -238,7 +238,7 @@ jobs:
 
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'
-        uses: softprops/action-gh-release@c062e08bd532815e2082a7c09928ea14e189f382 # v2.2.1
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: Valhalla Build ${{ steps.version.outputs.version }}
