@@ -21,7 +21,11 @@ class JdkvalhallaAT27 < Formula
     end
   end
   def install
-    libexec.install Dir["*"]
+    if OS.mac?
+      libexec.install Dir["Contents/Home/*"]
+    else
+      libexec.install Dir["*"]
+    end
     bin.install_symlink Dir["#{libexec}/bin/*"]
   end
   test do
