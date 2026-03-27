@@ -91,7 +91,11 @@ jobs:
       - name: Test formula installation (latest version)
         env:
           HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: |
+          # Fix permissions on /Applications dirs that block Homebrew's linkage check
+          sudo chmod -R o+r /Applications/ 2>/dev/null || true
           brew install artagon/jdk26valhalla/jdkvalhalla@27
 
       - name: Verify formula installation
