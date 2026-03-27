@@ -1,9 +1,9 @@
-# homebrew-jdk26valhalla
+# homebrew-jdkvalhalla
 
 Homebrew tap for JDK Project Valhalla early-access builds with automated updates, CI/CD, and support for both macOS and Linux. Currently provides JDK 26 and JDK 27 Valhalla builds.
 
-[![Release](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/release.yml/badge.svg)](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/release.yml)
-[![Validate](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/validate.yml/badge.svg)](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/validate.yml)
+[![Release](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/release.yml/badge.svg)](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/release.yml)
+[![Validate](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/validate.yml/badge.svg)](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/validate.yml)
 [![License: GPL v2 with Classpath Exception](https://img.shields.io/badge/License-GPL_v2--with--Classpath--Exception-blue.svg)](https://openjdk.java.net/legal/gplv2+ce.html)
 
 ## About Project Valhalla
@@ -42,7 +42,7 @@ This tap provides the latest Project Valhalla early-access builds implementing [
 ### Add the Tap
 
 ```bash
-brew tap Artagon/jdk26valhalla
+brew tap Artagon/jdkvalhalla
 ```
 
 ### Cask Installation (macOS) -- Latest (JDK 27)
