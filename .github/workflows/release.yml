@@ -29,13 +29,13 @@ jobs:
 
       - name: Audit formula
         run: |
-          brew untap artagon/jdk26valhalla || true
-          brew tap --custom-remote artagon/jdk26valhalla "$GITHUB_WORKSPACE"
+          brew untap artagon/jdkvalhalla || true
+          brew tap --custom-remote artagon/jdkvalhalla "$GITHUB_WORKSPACE"
           # Skip cask audit — cask uses macOS-only arch stanza (sha256 resolves
           # to nil on Linux). Cask is audited in validate.yml on macOS runners.
           for f in Formula/*.rb; do
             name="$(basename "$f" .rb)"
-            brew audit --formula "artagon/jdk26valhalla/$name" || true
+            brew audit --formula "artagon/jdkvalhalla/$name" || true
           done
 
       - name: Extract version from cask

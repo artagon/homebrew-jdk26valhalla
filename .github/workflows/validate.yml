@@ -39,16 +39,16 @@ jobs:
         run: |
           for f in Formula/*.rb; do
             name="$(basename "$f" .rb)"
-            echo "==> Auditing formula artagon/jdk26valhalla/$name"
-            brew audit --formula "artagon/jdk26valhalla/$name"
+            echo "==> Auditing formula artagon/jdkvalhalla/$name"
+            brew audit --formula "artagon/jdkvalhalla/$name"
           done
 
       - name: Audit casks
         run: |
           for f in Casks/*.rb; do
             name="$(basename "$f" .rb)"
-            echo "==> Auditing cask artagon/jdk26valhalla/$name"
-            brew audit --cask "artagon/jdk26valhalla/$name"
+            echo "==> Auditing cask artagon/jdkvalhalla/$name"
+            brew audit --cask "artagon/jdkvalhalla/$name"
           done
 
   test-cask-macos:
@@ -70,7 +70,7 @@ jobs:
           HOMEBREW_NO_AUTO_UPDATE: 1
         run: |
           sudo chmod -R o+r /Applications/ 2>/dev/null || true
-          brew install --cask artagon/jdk26valhalla/jdkvalhalla
+          brew install --cask artagon/jdkvalhalla/jdkvalhalla
 
       - name: Verify cask installation
         run: |
@@ -85,7 +85,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          brew uninstall --cask artagon/jdk26valhalla/jdkvalhalla || true
+          brew uninstall --cask artagon/jdkvalhalla/jdkvalhalla || true
 
   test-formula-macos:
     timeout-minutes: 30
@@ -98,13 +98,13 @@ jobs:
 
       - name: Fetch and verify formula checksum
         run: |
-          brew fetch --formula artagon/jdk26valhalla/jdkvalhalla@27
+          brew fetch --formula artagon/jdkvalhalla/jdkvalhalla@27
           echo "Formula fetch + checksum verification passed"
 
       - name: Verify formula syntax and audit
         run: |
-          brew style artagon/jdk26valhalla/jdkvalhalla@27
-          brew audit --formula artagon/jdk26valhalla/jdkvalhalla@27
+          brew style artagon/jdkvalhalla/jdkvalhalla@27
+          brew audit --formula artagon/jdkvalhalla/jdkvalhalla@27
 
   test-install-linux:
     timeout-minutes: 30
@@ -141,7 +141,7 @@ jobs:
         env:
           HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
-          brew install artagon/jdk26valhalla/jdkvalhalla@27
+          brew install artagon/jdkvalhalla/jdkvalhalla@27
 
       - name: Verify installation
         run: |

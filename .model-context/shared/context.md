@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Repository:** https://github.com/Artagon/homebrew-jdk26valhalla
+**Repository:** https://github.com/Artagon/homebrew-jdkvalhalla
 **Purpose:** Homebrew tap providing automated distribution of JDK Project Valhalla builds (JEP 401)
 **Current Version:** JDK Valhalla Build 26-jep401ea2+1-1 (Released: 2025-10-10)
 **License:** GPL-2.0 with Classpath Exception (matching OpenJDK)
@@ -51,7 +51,7 @@ This is a Homebrew tap that automates the distribution and updating of JDK Proje
 ## Directory Structure
 
 ```
-homebrew-jdk26valhalla/
+homebrew-jdkvalhalla/
 ├── .github/
 │   ├── workflows/           # GitHub Actions automation
 │   │   ├── audit.yml        # Weekly syntax validation
@@ -148,7 +148,7 @@ chore(workflow): update auto-update schedule
 
 **Breaking Changes:**
 ```bash
-feat(cask)!: rename from jdk26valhalla to jdkvalhalla
+feat(cask)!: rename from jdkvalhalla to jdkvalhalla
 
 BREAKING CHANGE: Users must uninstall old cask and reinstall with new name
 ```

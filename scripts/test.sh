@@ -4,12 +4,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TAP_USER="artagon"
-TAP_REPO="homebrew-jdk26valhalla"
+TAP_REPO="homebrew-jdkvalhalla"
 TAP_FULL="${TAP_USER}/${TAP_REPO}"
 FORMULA_NAME="jdkvalhalla@27"
-FORMULA_FULL="${TAP_USER}/jdk26valhalla/${FORMULA_NAME}"
+FORMULA_FULL="${TAP_USER}/jdkvalhalla/${FORMULA_NAME}"
 CASK_NAME="jdkvalhalla"
-CASK_FULL="${TAP_USER}/jdk26valhalla/${CASK_NAME}"
+CASK_FULL="${TAP_USER}/jdkvalhalla/${CASK_NAME}"
 
 log() {
   printf '==> %s\n' "$*"

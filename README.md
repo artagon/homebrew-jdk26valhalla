@@ -1,9 +1,9 @@
-# homebrew-jdk26valhalla
+# homebrew-jdkvalhalla
 
 Homebrew tap for JDK Project Valhalla early-access builds with automated updates, CI/CD, and support for both macOS and Linux. Currently provides JDK 26 and JDK 27 Valhalla builds.
 
-[![Release](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/release.yml/badge.svg)](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/release.yml)
-[![Validate](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/validate.yml/badge.svg)](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/validate.yml)
+[![Release](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/release.yml/badge.svg)](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/release.yml)
+[![Validate](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/validate.yml/badge.svg)](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/validate.yml)
 [![License: GPL v2 with Classpath Exception](https://img.shields.io/badge/License-GPL_v2--with--Classpath--Exception-blue.svg)](https://openjdk.java.net/legal/gplv2+ce.html)
 
 ## About Project Valhalla
@@ -42,7 +42,7 @@ This tap provides the latest Project Valhalla early-access builds implementing [
 ### Add the Tap
 
 ```bash
-brew tap Artagon/jdk26valhalla
+brew tap Artagon/jdkvalhalla
 ```
 
 ### Cask Installation (macOS) -- Latest (JDK 27)
@@ -74,6 +74,17 @@ The formula installation creates symlinks in your Homebrew bin directory.
 
 Both builds implement:
 - JEP 401: Value Classes and Objects
+
+### What Changed Between Builds
+
+**JDK 27 Valhalla (27-jep401ea3+1-1)** — Released 2026/3/11
+- Based on JDK 27 (up from JDK 26)
+- Third EA iteration of JEP 401 (`jep401ea3`)
+- Includes JDK 27 language and API changes alongside Valhalla features
+
+**JDK 26 Valhalla (26-jep401ea2+1-1)** — Released 2025/10/10
+- Based on JDK 26
+- Second EA iteration of JEP 401 (`jep401ea2`)
 
 ## Features
 
@@ -142,7 +153,7 @@ brew upgrade jdkvalhalla@27  # or brew upgrade --cask jdkvalhalla
 
 ## Issue Reporting
 
-Found a problem? [Open an issue](https://github.com/Artagon/homebrew-jdk26valhalla/issues/new/choose) using our issue templates.
+Found a problem? [Open an issue](https://github.com/Artagon/homebrew-jdkvalhalla/issues/new/choose) using our issue templates.
 
 ## Automated Updates
 
@@ -166,10 +177,10 @@ This repository uses GitHub Actions to automatically maintain the latest Valhall
 You can manually trigger an update check:
 ```bash
 # Via GitHub CLI
-gh workflow run update.yml -R Artagon/homebrew-jdk26valhalla
+gh workflow run update.yml -R Artagon/homebrew-jdkvalhalla
 ```
 
-Or visit the [Actions tab](https://github.com/Artagon/homebrew-jdk26valhalla/actions/workflows/update.yml) and click "Run workflow".
+Or visit the [Actions tab](https://github.com/Artagon/homebrew-jdkvalhalla/actions/workflows/update.yml) and click "Run workflow".
 
 ## Project Valhalla Resources
 
@@ -193,7 +204,7 @@ Or visit the [Actions tab](https://github.com/Artagon/homebrew-jdk26valhalla/act
 ### Community and Support
 - **[Valhalla Dev Mailing List](https://mail.openjdk.org/mailman/listinfo/valhalla-dev)** - Join the development discussion
 - **[OpenJDK Wiki - Valhalla](https://wiki.openjdk.org/display/valhalla)** - Design documents and specifications
-- **[GitHub Discussions](https://github.com/Artagon/homebrew-jdk26valhalla/discussions)** - Ask questions about this tap
+- **[GitHub Discussions](https://github.com/Artagon/homebrew-jdkvalhalla/discussions)** - Ask questions about this tap
 
 ### Experimental Features
 Remember that Valhalla builds include preview features requiring the `--enable-preview` flag:

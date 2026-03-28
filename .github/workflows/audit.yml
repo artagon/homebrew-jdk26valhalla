@@ -34,14 +34,14 @@ jobs:
         run: |
           for f in Formula/*.rb; do
             name="$(basename "$f" .rb)"
-            echo "==> Auditing formula artagon/jdk26valhalla/$name"
-            brew audit --formula "artagon/jdk26valhalla/$name"
+            echo "==> Auditing formula artagon/jdkvalhalla/$name"
+            brew audit --formula "artagon/jdkvalhalla/$name"
           done
 
       - name: Audit casks
         run: |
           for f in Casks/*.rb; do
             name="$(basename "$f" .rb)"
-            echo "==> Auditing cask artagon/jdk26valhalla/$name"
-            brew audit --cask "artagon/jdk26valhalla/$name"
+            echo "==> Auditing cask artagon/jdkvalhalla/$name"
+            brew audit --cask "artagon/jdkvalhalla/$name"
           done

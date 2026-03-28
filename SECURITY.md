@@ -106,7 +106,7 @@ Each release includes an SBOM in SPDX 2.3 format:
 
 1. **Check the Formula/Cask**:
    ```bash
-   brew cat artagon/jdk26valhalla/jdkvalhalla@27
+   brew cat artagon/jdkvalhalla/jdkvalhalla@27
    ```
    Verify the SHA256 checksums are present
 
@@ -126,7 +126,7 @@ Each release includes an SBOM in SPDX 2.3 format:
 
 Download the SBOM from the release assets:
 ```bash
-curl -LO https://github.com/Artagon/homebrew-jdk26valhalla/releases/download/v{VERSION}/sbom-{VERSION}.spdx.json
+curl -LO https://github.com/Artagon/homebrew-jdkvalhalla/releases/download/v{VERSION}/sbom-{VERSION}.spdx.json
 ```
 
 Verify it contains expected package information.

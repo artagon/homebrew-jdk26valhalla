@@ -96,7 +96,7 @@ gh pr create \
 ```
 
 **Or use the GitHub web interface:**
-1. Go to https://github.com/artagon/homebrew-jdk26valhalla
+1. Go to https://github.com/artagon/homebrew-jdkvalhalla
 2. Click "Pull requests" -> "New pull request"
 3. Select your branch
 4. Fill in the PR template
@@ -301,7 +301,7 @@ All PRs automatically run:
 
 ## Getting Help
 
-- **Issues**: [Open an issue](https://github.com/artagon/homebrew-jdk26valhalla/issues/new/choose)
+- **Issues**: [Open an issue](https://github.com/artagon/homebrew-jdkvalhalla/issues/new/choose)
 - **Discussions**: Use GitHub Discussions for questions
 - **Documentation**: Check the [README](README.md)
 
