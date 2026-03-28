@@ -26,11 +26,16 @@ jobs:
         if: runner.os == 'Linux'
         uses: Homebrew/actions/setup-homebrew@b2a302b9a642580cae998e6ba2076ffd28e61317 # v5
 
-      - name: Audit cask
+      - name: Audit formula
         run: |
           brew untap artagon/jdk26valhalla || true
           brew tap --custom-remote artagon/jdk26valhalla "$GITHUB_WORKSPACE"
-          brew audit --cask artagon/jdk26valhalla/jdkvalhalla
+          # Skip cask audit — cask uses macOS-only arch stanza (sha256 resolves
+          # to nil on Linux). Cask is audited in validate.yml on macOS runners.
+          for f in Formula/*.rb; do
+            name="$(basename "$f" .rb)"
+            brew audit --formula "artagon/jdk26valhalla/$name" || true
+          done
 
       - name: Extract version from cask
         id: version
